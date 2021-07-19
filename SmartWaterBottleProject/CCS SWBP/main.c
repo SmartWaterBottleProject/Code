@@ -3,6 +3,8 @@
 //UCF SD1
 //7-19-21
 
+//Code uses S1 and S2 to toggle water bottle LED indicators ON/OFF
+
 #include <msp430.h>
 #define RedLED BIT0    //red LED at P9.0
 #define GreenLED BIT1  //green LED at  P9.7

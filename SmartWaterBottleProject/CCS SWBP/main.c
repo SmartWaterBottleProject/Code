@@ -17,7 +17,7 @@ int main(void)
     PM5CTL0 &= ~LOCKLPM5;       //clear lock and allow new code re-flash/enable GPIO Pins
 
     P9DIR |= (RedLED|GreenLED|YellowLED|BlueLED);    //direct pin as output
-    P9OUT |= (RedLED|GreenLED|YellowLED|BlueLED);    //turn LEDs OFF
+    P9OUT |= (RedLED|GreenLED|YellowLED|BlueLED);    //turn LEDs OFF (active low)
 
     //configuring buttons
     P1DIR &= ~(SanitizeButton|WaterQualityButton); //0: input

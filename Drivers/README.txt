@@ -1,0 +1,2 @@
+Drivers taken from https://dev.ti.com/tirex/explore/content/msp430ware_3_80_13_03/driverlib/doc/MSP430FR5xx_6xx/html/adc12__b_8h_source.html
+Alternate driverlib.h which does not have supporting code: https://dev.ti.com/tirex/explore/node?devices=MSP430FR6989&node=AO9bOMuG3HzZTCzxmZGiSw__IOGqZri__LATEST&search=Driver

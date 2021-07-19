@@ -1,4 +1,8 @@
-//4.1--Buttons with Interrupts
+//Smart Water Bottle Project Main Function
+//Programmers: Ryan Koons, Matthew Woodruff, and Dean Pickett
+//UCF SD1
+//7-19-21
+
 #include <msp430.h>
 #define RedLED BIT0    //red LED at P9.0
 #define GreenLED BIT1  //green LED at  P9.7
@@ -13,7 +17,7 @@ int main(void)
     PM5CTL0 &= ~LOCKLPM5;       //clear lock and allow new code re-flash/enable GPIO Pins
 
     P9DIR |= (RedLED|GreenLED|YellowLED|BlueLED);    //direct pin as output
-    //P9OUT &= ~(RedLED|GreenLED|YellowLED|BlueLED);//turn LED OFF
+    P9OUT |= (RedLED|GreenLED|YellowLED|BlueLED);    //turn LEDs OFF
 
     //configuring buttons
     P1DIR &= ~(SanitizeButton|WaterQualityButton); //0: input
@@ -23,7 +27,7 @@ int main(void)
     P1IES |= (SanitizeButton|WaterQualityButton);  //1: interrupt on falling edge
     P1IFG &= ~(SanitizeButton|WaterQualityButton); //0: Clear interrupt flags
 
-    //lastly enable GIE, avoid raising interrupts too soon
+    //lastly enable GIE, avoid raising interrupts too soon. Enter low power mode
     _low_power_mode_4();
 
 
@@ -37,12 +41,12 @@ int main(void)
 __interrupt void P1_ISR()
 {
    if( (P1IFG&SanitizeButton) !=0 ) {
-       P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);
+       P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs
    P1IFG &= ~SanitizeButton; //clear flag (shared)
    }
 
    if( (P1IFG&WaterQualityButton)!= 0 ) {
-       P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);
+       P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs
    P1IFG &= ~WaterQualityButton; //clear flag (shared)
    }
 

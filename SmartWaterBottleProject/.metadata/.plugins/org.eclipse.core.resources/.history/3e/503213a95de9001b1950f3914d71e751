@@ -1,0 +1,93 @@
+//Smart Water Bottle Project: Servomotor Demo
+//Programmer: Ryan Koons
+//UCF SD1
+//7-19-21
+
+//Task: Generate PWM output signal in order to re-position the servomotor.
+// For 90 degree angle: ON pulse: 1500 microseconds
+//For 100 degree angle: ON pulse: 1560 microseconds
+    //Increment PWM duty cycle in 10 microsecond intervals
+        //Use left button to decrease 10 microseconds
+        //Use right button to increase 10 microseconds
+
+#include <msp430.h>
+//#include "driverlib.h"
+#define Button1 BIT1     //P1.1
+#define Button2 BIT2     //P1.2
+
+int main(void)
+{
+    WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
+    PM5CTL0 &= ~LOCKLPM5;       //clear lock and allow new code re-flash/enable GPIO Pins
+
+    //Configure PWM with 20ms period, and 1.5ms duty cycle
+    //TACCR1 count for on time
+    //TACCR0 count for total time
+    TA0CCR0 = 20000-1; //@1Mhz, T=20 ms, (f=50 Hz)
+
+    //Configure clock with SMCLK=1Mhz, No input division, Up mode, and clear TAR
+    TA0CTL = TASSEL_2 | ID_0 | MC_1 | TACLR;
+    TA0CCTL1 |= OUTMOD_7; //Reset Set Output Pattern
+
+    TA0CCR1=1500-1; //@1MHz, T= 1.5 ms
+    TA0CCTL0 |= CCIE; //enable interrupt
+    TA0CCTL0 &= ~CCIFG; //clear flag
+
+    //Configure clock with SMCLK=1Mhz, No input division, Up mode, and clear TAR
+   // TA1CTL = TASSEL_2 | ID_0 |MC_1 |TACLR;
+
+
+    // Configure P1.4 as TA1.0 for PWM
+    //P1DIR.4=1, PSEL1.4=1, P1SEL0.4=1, LCDSz=0
+    P1DIR |= BIT4; //SetP1DIR bit 4 as high
+    P1SEL1 |= BIT4; //SetP1SEL1 bit 4 as high
+    P1SEL0 |= BIT4; //Set P1SEL0 bit 4 as high
+    LCDCCTL0 &= ~BIT2;  //Set output LED segments to 0
+
+
+    //configuring buttons
+    P1DIR &= ~(Button1|Button2); //0: input
+    P1REN |= (Button1|Button2);  //1: enable built in resistors
+    P1OUT |= (Button1|Button2);  //1: Pull up to Vcc
+    P1IE |= (Button1|Button2);   //1:enable interrupts
+    P1IES |= (Button1|Button2);  //1: interrupt on falling edge
+    P1IFG &= ~(Button1|Button2); //0: Clear interrupt flags
+
+    _enable_interrupts(); //Set global interrupt enable bit
+
+while(1);
+
+    return 0;
+}
+
+
+
+//**********ISRs********//
+//*********************//
+/*
+// ISR of Timer 1 Channel 0 (A0 vector)
+#pragma vector = TIMER1_A0_VECTOR
+__interrupt void T1A0_ISR() {
+ // Toggle the green LED
+    //P9OUT ^= greenLED;
+}*/
+
+
+#pragma vector = PORT1_VECTOR  //Link the ISR to the Vector
+__interrupt void P1_ISR()
+{
+   if( (P1IFG&Button1) !=0 ) {
+       //decrement duty cycle by 10 microseconds
+       if(TA1CCR1 > (1500-1)  )
+           TA0CCR1-=10;
+   P1IFG &= ~Button1; //clear flag (shared)
+   }
+
+   if( (P1IFG&Button2)!= 0 ) {
+       //increment 10 microseconds
+       if(TA1CCR1 < (1560-1)  )
+           TA0CCR1+=10;
+   P1IFG &= ~Button2; //clear flag (shared)
+   }
+
+}

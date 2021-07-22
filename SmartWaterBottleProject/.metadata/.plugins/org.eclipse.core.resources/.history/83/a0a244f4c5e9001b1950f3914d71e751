@@ -1,0 +1,121 @@
+//Smart Water Bottle Project: Servomotor Demo
+//Programmer: Ryan Koons
+//UCF SD1
+//7-19-21
+
+//Task: Generate PWM output signal in order to re-position the servomotor.
+//Period: 20 ms
+// For 90 degree angle: ON pulse: 1500 microseconds
+//For 100 degree angle: ON pulse: 1560 microseconds
+    //Increment PWM duty cycle in 10 microsecond intervals
+        //Use left button to decrease 10 microseconds
+        //Use right button to increase 10 microseconds
+
+#include <msp430.h>
+//#include "driverlib.h"
+#define Button1 BIT1     //P1.1
+#define Button2 BIT2     //P1.2
+#define PWMServo BIT6    //P1.6
+
+void convert_32khz();
+
+int main(void)
+{
+    WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
+    PM5CTL0 &= ~LOCKLPM5;       //clear lock and allow new code re-flash/enable GPIO Pins
+
+
+
+    //Configure P1.6 as TA0.1 for PWM
+    P1DIR |= PWMServo;
+    P1SEL1 |= PWMServo;
+    P1SEL0 |= PWMServo;
+    convert_32khz();
+
+    TA0CCR0=20000-1; //@1 Mhz, 20 millisecond
+    TA0CTL= TASSEL_2 | ID_0 | MC_1 | TACLR;
+    //Channel Reset/Set
+
+    TA0CCTL1 |= OUTMOD_7;
+    TA0CCR1=1500-1;
+
+
+    TA1CCR0 = 328-1;
+    TA1CTL = TASSEL_1 | ID_0 | MC_2 | TACLR;
+
+    //configuring buttons
+    P1DIR &= ~(Button1|Button2); //0: input
+    P1REN |= (Button1|Button2);  //1: enable built in resistors
+    P1OUT |= (Button1|Button2);  //1: Pull up to Vcc
+    P1IE |= (Button1|Button2);   //1:enable interrupts
+    P1IES |= (Button1|Button2);  //1: interrupt on falling edge
+    P1IFG &= ~(Button1|Button2); //0: Clear interrupt flags
+
+    _low_power_mode_0();
+
+while(1){}
+
+    return 0;
+}
+
+
+
+//**********ISRs********//
+//*********************//
+
+#pragma vector = TIMER0_A1_VECTOR
+__interrupt void T0A1_ISR() {
+
+    if( (P1IFG&Button1) !=0 ) {
+          //decrement duty cycle by 10 microseconds
+          if(TA0CCR1 > (1500-1)  )
+              TA0CCR1-=10;
+      P1IFG &= ~(Button1|Button2); //clear flag
+      P1IE |= (Button1|Button2);
+              //disable timer interrupt
+              TA1CCTL0 &= ~CCIE;
+      }
+
+      if( (P1IFG&Button2)!= 0 ) {
+          //increment duty cycle by 10 microseconds
+          if(TA0CCR1 < (1560-1)  )
+              TA0CCR1+=10;
+      P1IFG &= ~(Button1|Button2); //clear flag
+      P1IE |= (Button1|Button2);
+              //disable timer interrupt
+              TA1CCTL0 &= ~CCIE;
+      }
+
+}
+
+#pragma vector = PORT1_VECTOR  //Link the ISR to the Vector
+__interrupt void P1_ISR()
+{
+    //enable timers interrupt
+           TA1CCR0 = TA1R + 328;  //schedule 10 millisecond duration
+           TA1CCTL0 &= ~CCIFG;
+           TA1CCTL0 |= CCIE;
+
+           P1IFG &= ~(Button1|Button2); //clear flag (shared)
+           P1IE &= ~(Button1|Button2);  //disable buttons
+
+
+}
+
+
+//Function for Converting ACLK to 32Khz
+void convert_32khz()
+{
+//By default, ACLK runs on LFMODCLK at 5Mhz/128= 39 Khz
+//Reroute pins to LFXIN/LFXOUT functionality
+PJSEL1 &= ~BIT4;
+PJSEL0 |= BIT4;
+//wait until oscillator fault flags are cleared
+CSCTL0 = CSKEY; //unlock CS registers
+do {
+CSCTL5 &= ~LFXTOFFG; //local fault flag
+SFRIFG1 &= ~OFIFG; //global fault flag
+} while((CSCTL5 & LFXTOFFG) != 0 );
+CSCTL0_H = 0; //Lock CS registers
+return;
+}

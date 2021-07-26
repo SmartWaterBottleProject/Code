@@ -15,6 +15,10 @@
 #define Button1 BIT1     //P1.1
 #define Button2 BIT2     //P1.2
 #define PWMServo BIT6    //P1.6
+#define LimLow 1280   //Lower Limit
+#define LimHi  1680   //Upper Limit
+#define Start  1480   //Starting Point
+#define Step   10       //Step Size
 
 int main(void)
 {
@@ -31,7 +35,7 @@ int main(void)
 
     //Channel Reset/Set
     TA0CCTL1 |= OUTMOD_7;
-    TA0CCR1=1500-1;
+    TA0CCR1 = Start; //(LimLow+LimHi)>>1; //Gets to the middle value.
 
     //configuring buttons
     P1DIR &= ~(Button1|Button2); //0: input
@@ -57,17 +61,16 @@ __interrupt void P1_ISR()
     //If Button1 was pressed
    if( (P1IFG&Button1) !=0 )
    {
-      if(TA0CCR1 > (1500-1)  )
-           TA0CCR1-=10;
+      if(TA0CCR1 > LimLow)
+           TA0CCR1 -= Step;
    P1IFG &= ~Button1; //clear flag
    }
 
    //If Button2 was pressed
    if( (P1IFG&Button2)!= 0 )
    {
-       if(TA0CCR1 < (1560-1)  )
-           TA0CCR1+=10; //increment duty cycle by 10 microseconds
+       if(TA0CCR1 < LimHi)
+           TA0CCR1 += Step; //increment duty cycle by 10 microseconds
    P1IFG &= ~Button2; //clear flag
    }
-
 }

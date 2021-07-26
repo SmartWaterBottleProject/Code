@@ -7,4 +7,4 @@ org.eclipse.launchbar.core.descriptorType.default\:CCS\ SWBP/activeLaunchMode=ru
 org.eclipse.launchbar.core.descriptorType.default\:CCS\ SWBP/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
 org.eclipse.launchbar.core.descriptorType.default\:MSP430FR6989.ccxml/activeLaunchMode=debug
 org.eclipse.launchbar.core.descriptorType.default\:MSP430FR6989.ccxml/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
-org.eclipse.launchbar.core.descriptorType.default\:PWM\ Servomotor\ Demo/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:PWM\ Servomotor\ Demo/activeLaunchMode=debug

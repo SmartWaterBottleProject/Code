@@ -4,7 +4,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROGRAM.MSP430FR6989.ccxml.TI MSP430 USB1/MSP430" value="${build_artifact:PWM Servomotor Demo}"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.MSP430FR6989.ccxml.TI MSP430 USB1/MSP430" value="PWM Servomotor Demo"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:PWM Servomotor Demo}"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.MSP430FR6989.ccxml.TI MSP430 USB1/MSP430" value="C:\Users\User\Documents\UCF\Summer 2021\SD1\SD Repo\SmartWaterBottleProject\PWM Servomotor Demo\Debug\PWM Servomotor Demo.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.MSP430FR6989.ccxml.TI MSP430 USB1/MSP430" value="C:\Users\kajis\Documents\School\SD Git\Code\SmartWaterBottleProject\PWM Servomotor Demo\Debug\PWM Servomotor Demo.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/PWM Servomotor Demo"/>
 </listAttribute>

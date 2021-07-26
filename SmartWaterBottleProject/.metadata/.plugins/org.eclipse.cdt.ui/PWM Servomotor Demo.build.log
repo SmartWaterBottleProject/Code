@@ -1,11 +1,11 @@
 
 **** Build of configuration Debug for project PWM Servomotor Demo ****
 
-"C:\\ti\\ccs1040\\ccs\\utils\\bin\\gmake" -k -j 4 all -O 
+"C:\\ti\\ccs1040\\ccs\\utils\\bin\\gmake" -k -j 2 all -O 
  
 Building file: "../main.c"
 Invoking: MSP430 Compiler
-"C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/bin/cl430" -vmspx --data_model=restricted --use_hw_mpy=F5 --include_path="C:/ti/ccs1040/ccs/ccs_base/msp430/include" --include_path="C:/Users/User/Documents/UCF/Summer 2021/SD1/SD Repo/SmartWaterBottleProject/PWM Servomotor Demo" --include_path="C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include" --advice:power=all --advice:hw_config=all --define=__MSP430FR6989__ --define=_MPU_ENABLE -g --printf_support=minimal --diag_warning=225 --diag_wrap=off --display_error_number --silicon_errata=CPU21 --silicon_errata=CPU22 --silicon_errata=CPU40 --preproc_with_compile --preproc_dependency="main.d_raw"  "../main.c"
+"C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/bin/cl430" -vmspx --data_model=restricted --use_hw_mpy=F5 --include_path="C:/ti/ccs1040/ccs/ccs_base/msp430/include" --include_path="C:/Users/kajis/Documents/School/SD Git/Code/SmartWaterBottleProject/PWM Servomotor Demo" --include_path="C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include" --advice:power=all --advice:hw_config=all --define=__MSP430FR6989__ --define=_MPU_ENABLE -g --printf_support=minimal --diag_warning=225 --diag_wrap=off --display_error_number --silicon_errata=CPU21 --silicon_errata=CPU22 --silicon_errata=CPU40 --preproc_with_compile --preproc_dependency="main.d_raw"  "../main.c"
 Finished building: "../main.c"
  
 Building target: "PWM Servomotor Demo.out"

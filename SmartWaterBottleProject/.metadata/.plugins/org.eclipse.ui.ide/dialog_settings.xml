@@ -9,6 +9,9 @@
 			<item value="C:\Users\User\Documents\UCF\Summer 2021\SD1\SD Repo\SmartWaterBottleProject\PWM Spectrometer Demo"/>
 		</list>
 	</section>
+<<<<<<< HEAD
+	<section name="NewWizardAction">
+=======
 	<section name="CleanDialogSettings">
 		<item key="DIALOG_X_ORIGIN" value="546"/>
 		<item key="DIALOG_Y_ORIGIN" value="112"/>
@@ -17,5 +20,6 @@
 		<item key="BUILD_NOW" value="true"/>
 		<item key="BUILD_ALL" value="true"/>
 		<item key="TOGGLE_SELECTED" value="false"/>
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342
 	</section>
 </section>

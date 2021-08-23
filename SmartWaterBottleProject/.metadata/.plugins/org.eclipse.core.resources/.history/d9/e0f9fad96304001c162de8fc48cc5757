@@ -1,0 +1,14 @@
+/*
+ * BatteryRead.c
+ *
+ *  Created on: Aug 23, 2021
+ *      Author: User
+ */
+
+
+//ADC read on Battery voltage
+    //Compare to 2-d array (hash table) of voltages to determine device battery % (voltage,%)
+    //if hash < adc we are good
+
+//Deter
+

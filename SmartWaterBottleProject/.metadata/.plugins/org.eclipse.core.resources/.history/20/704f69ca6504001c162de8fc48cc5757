@@ -1,0 +1,16 @@
+/*
+ * BatteryRead.c
+ *
+ *  Created on: Aug 23, 2021
+ *      Author: User
+ */
+
+
+//ADC read on Battery voltage
+    //Compare to 2-d array (hash table) of voltages to determine device battery % (voltage,%)
+        //Round to nearest 5%
+    //if adc=20% or less, report low battery (Export.c)
+    //Update parameterm so Batt % can be sent to the app
+
+//Deter
+

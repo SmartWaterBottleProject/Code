@@ -1,6 +1,11 @@
 eclipse.preferences.version=1
 encoding//Debug/driverlib/MSP430FR5xx_6xx/subdir_rules.mk=UTF-8
 encoding//Debug/driverlib/MSP430FR5xx_6xx/subdir_vars.mk=UTF-8
+<<<<<<< HEAD:SmartWaterBottleProject/CCS SWBP/.settings/org.eclipse.core.resources.prefs
+encoding//Debug/makefile=UTF-8
+encoding//Debug/objects.mk=UTF-8
+=======
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342:SmartWaterBottleProject/.metadata/.plugins/org.eclipse.core.resources/.history/d/4081e5432fee001b1b5ad3208ea293f0
 encoding//Debug/sources.mk=UTF-8
 encoding//Debug/subdir_rules.mk=UTF-8
 encoding//Debug/subdir_vars.mk=UTF-8

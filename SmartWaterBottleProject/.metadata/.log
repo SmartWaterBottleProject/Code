@@ -2996,7 +2996,11 @@ org.eclipse.swt.SWTException: Widget is disposed
 	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:657)
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1465)
+<<<<<<< HEAD
+!SESSION 2021-08-23 17:35:50.448 -----------------------------------------------
+=======
 !SESSION 2021-07-26 12:30:59.199 -----------------------------------------------
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342
 eclipse.buildId=4.14.0.I20191210-0610
 java.version=1.8.0_144
 java.vendor=Oracle Corporation
@@ -3004,6 +3008,32 @@ BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
 Framework arguments:  -product com.ti.ccstudio.branding.product
 Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product com.ti.ccstudio.branding.product
 
+<<<<<<< HEAD
+!ENTRY com.ti.common.core 1 0 2021-08-23 17:36:15.860
+!MESSAGE path=ccs_base/DebugServer
+
+!ENTRY com.ti.common.core 1 0 2021-08-23 17:36:15.863
+!MESSAGE debugServerDir=C:/ti/ccs1040/ccs/ccs_base/DebugServer
+
+!ENTRY com.ti.ccstudio.ui 1 0 2021-08-23 17:37:05.639
+!MESSAGE CCS IDE session started!
+	CCS build: 10.4.0.00006
+	CCS location: C:/ti/ccs1040/ccs
+	Workspace location: C:/Users/User/Documents/UCF/Summer 2021/SD1/SD Repo/SmartWaterBottleProject
+
+!ENTRY com.ti.ccstudio.project.ui.webcontent 1 0 2021-08-23 17:37:07.146
+!MESSAGE CCS HTTP adapter started! [ccs.port:54041] - Open 'http://localhost:54041/ide' in web browser to see listing of available APIs...
+
+!ENTRY com.ti.ccstudio.debug 1 0 2021-08-23 18:03:48.120
+!MESSAGE DS_ERROR: MSP430: Error initializing emulator: No USB FET was found
+
+
+!ENTRY com.ti.ccstudio.debug 1 0 2021-08-23 18:03:48.388
+!MESSAGE DS_ERROR: Error initializing emulator:
+No USB FET was found
+
+!ENTRY org.eclipse.ui.console 4 2 2021-08-23 19:12:37.000
+=======
 !ENTRY com.ti.common.core 1 0 2021-07-26 12:31:27.214
 !MESSAGE path=ccs_base/DebugServer
 
@@ -3420,6 +3450,7 @@ Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product com.ti.ccstud
 !MESSAGE Request for monitor: 'RequestMonitor (com.ti.ccstudio.debug.launch.CCSLaunch$3@685382c): Status ERROR: org.eclipse.cdt.dsf code=0 Executor shut down while executing Sequence Sequence "", result for executing step #11 = Status OK: unknown code=0 OK null, step #11 null' resulted in a rejected execution exception.
 
 !ENTRY org.eclipse.ui.console 4 2 2021-07-26 13:31:20.752
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342
 !MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.ui.console".
 !STACK 0
 java.lang.NullPointerException
@@ -3460,7 +3491,11 @@ java.lang.NullPointerException
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1465)
 
+<<<<<<< HEAD
+!ENTRY org.eclipse.ui.console 4 120 2021-08-23 19:12:37.004
+=======
 !ENTRY org.eclipse.ui.console 4 120 2021-07-26 13:31:20.766
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342
 !MESSAGE Exception occurred during console property change notification.
 !STACK 0
 java.lang.NullPointerException
@@ -3501,7 +3536,11 @@ java.lang.NullPointerException
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1465)
 
+<<<<<<< HEAD
+!ENTRY org.eclipse.ui.console 4 2 2021-08-23 19:12:37.005
+=======
 !ENTRY org.eclipse.ui.console 4 2 2021-07-26 13:31:20.768
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342
 !MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.ui.console".
 !STACK 0
 java.lang.NullPointerException
@@ -3542,7 +3581,11 @@ java.lang.NullPointerException
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1465)
 
+<<<<<<< HEAD
+!ENTRY org.eclipse.ui.console 4 120 2021-08-23 19:12:37.007
+=======
 !ENTRY org.eclipse.ui.console 4 120 2021-07-26 13:31:20.769
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342
 !MESSAGE Exception occurred during console property change notification.
 !STACK 0
 java.lang.NullPointerException
@@ -3583,7 +3626,11 @@ java.lang.NullPointerException
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1465)
 
+<<<<<<< HEAD
+!ENTRY org.eclipse.ui.console 4 2 2021-08-23 19:12:37.008
+=======
 !ENTRY org.eclipse.ui.console 4 2 2021-07-26 13:31:20.772
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342
 !MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.ui.console".
 !STACK 0
 org.eclipse.swt.SWTException: Widget is disposed
@@ -3629,7 +3676,11 @@ org.eclipse.swt.SWTException: Widget is disposed
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1465)
 
+<<<<<<< HEAD
+!ENTRY org.eclipse.ui.console 4 120 2021-08-23 19:12:37.011
+=======
 !ENTRY org.eclipse.ui.console 4 120 2021-07-26 13:31:20.797
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342
 !MESSAGE Exception occurred during console property change notification.
 !STACK 0
 org.eclipse.swt.SWTException: Widget is disposed
@@ -3675,7 +3726,11 @@ org.eclipse.swt.SWTException: Widget is disposed
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1465)
 
+<<<<<<< HEAD
+!ENTRY org.eclipse.ui.console 4 2 2021-08-23 19:12:37.012
+=======
 !ENTRY org.eclipse.ui.console 4 2 2021-07-26 13:31:20.799
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342
 !MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.ui.console".
 !STACK 0
 org.eclipse.swt.SWTException: Widget is disposed
@@ -3721,7 +3776,11 @@ org.eclipse.swt.SWTException: Widget is disposed
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1465)
 
+<<<<<<< HEAD
+!ENTRY org.eclipse.ui.console 4 120 2021-08-23 19:12:37.014
+=======
 !ENTRY org.eclipse.ui.console 4 120 2021-07-26 13:31:20.801
+>>>>>>> d024b7ba47d6b0a63c43a9948d372881a144b342
 !MESSAGE Exception occurred during console property change notification.
 !STACK 0
 org.eclipse.swt.SWTException: Widget is disposed

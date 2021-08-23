@@ -1,0 +1,13 @@
+/*
+ * Sanitize.c
+ *
+ *  Created on: Aug 23, 2021
+ *      Author: User
+ */
+
+
+print(void)
+{
+    printf("Hello World\n");
+    return;
+}

@@ -1,0 +1,98 @@
+//Smart Water Bottle Project Main Function
+//Programmers: Ryan Koons, Matthew Woodruff, and Dean Pickett
+//UCF SD1
+//8-23-21
+
+#include <msp430.h>
+#include <stdio.h>
+#include "Ports.h"
+#include "Sanitize.c"
+#include "Export.c"
+#include "Analyze.c"
+
+
+
+
+
+//Sanitize
+
+//Analyze
+
+//Export
+
+//Batt Read
+
+int main (void)
+{
+    print();
+    return 0;
+}
+
+
+
+
+
+/*
+int main(void)
+{
+    WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
+    PM5CTL0 &= ~LOCKLPM5;       //clear lock and allow new code re-flash/enable GPIO Pins
+
+    P9DIR |= (RedLED|GreenLED|YellowLED|BlueLED);    //direct pin as output
+    P9OUT |= (RedLED|GreenLED|YellowLED|BlueLED);    //turn LEDs OFF (active low)
+
+    //configuring buttons
+    P1DIR &= ~(SanitizeButton|WaterQualityButton); //0: input
+    P1REN |= (SanitizeButton|WaterQualityButton);  //1: enable built in resistors
+    P1OUT |= (SanitizeButton|WaterQualityButton);  //1: Pull up to Vcc
+    P1IE |= (SanitizeButton|WaterQualityButton);   //1:enable interrupts
+    P1IES |= (SanitizeButton|WaterQualityButton);  //1: interrupt on falling edge
+    P1IFG &= ~(SanitizeButton|WaterQualityButton); //0: Clear interrupt flags
+
+    //lastly enable GIE, avoid raising interrupts too soon. Enter low power mode
+    _low_power_mode_4();
+
+
+
+    return 0;
+}*/
+
+//**********ISR********//
+//*********************//
+#pragma vector = PORT1_VECTOR  //Link the ISR to the Vector
+__interrupt void P1_ISR()
+{
+   if( (P1IFG&sanitizeButton) !=0 )
+   {
+       //Disable other button
+       //See if button is held (timer for 3s)
+     /*  if(buttonHeld)
+       {
+           bluetoothConnect();
+       }*/
+
+       //Deactivate current button
+       //Call Sanitize.c
+
+       //Reactivate all button presses
+
+                                                       /*P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs
+                                                   P1IFG &= ~SanitizeButton; //clear flag (shared)*/
+   }
+
+   if( (P1IFG&waterQualityButton)!= 0 )
+   {
+       //Disable other button
+       //See if button is held (timer for 3s)
+          /*  if(buttonHeld)
+            {
+                bluetoothConnect();
+            }*/
+
+       //Deactivate current button
+
+                                                        /*P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs
+                                                           P1IFG &= ~WaterQualityButton; //clear flag (shared)*/
+   }
+
+}

@@ -1,0 +1,14 @@
+/*
+ * BatteryRead.c
+ *
+ *  Created on: Aug 23, 2021
+ *      Author: User
+ */
+
+
+//ADC read on Battery voltage
+
+//Compare to array of voltages to determine device battery %
+
+//Deter
+

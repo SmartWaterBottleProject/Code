@@ -4,6 +4,8 @@
  *  Created on: Aug 23, 2021
  *      Author: User
  */
+#include <Ports.h>
+#include <Sanitizer.h>
 
 //Initialize timer
 
@@ -15,4 +17,9 @@
 
 //Re-enter LPM
 
+void Sanitize(void){
 
+    P1OUT ^= redLED; // Invert  red LED
+
+    return;
+}

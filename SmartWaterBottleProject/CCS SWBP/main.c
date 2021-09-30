@@ -1,40 +1,65 @@
 //Smart Water Bottle Project Main Function
 //Programmers: Ryan Koons, Matthew Woodruff, and Dean Pickett
-//UCF SD1
+//UCF SD
 //8-23-21
 
-#include <msp430.h>
-#include <stdio.h>
-#include "Ports.h"
-#include "Initialize.c"
-#include "UART.c"
-#include "BatteryRead.c"
-#include "Sanitize.c"
-#include "Analyze.c"
-#include "Export.c"
+
+#include <Ports.h>
+#include <Initializer.h>
+#include <UART.h>
+#include <Batteryreader.h>
+#include <Sanitizer.h>
+#include <Analyzer.h>
+#include <Exporter.h>
+__interrupt void  Port1_ISR() ;
+
+int sanit = 0, anaz = 0; // Global variables to trigger sanitization and analyzing
+int battcharge = 100;
 
 
 int main (void)
 {
-    //Call Initialize.c
+    //Call Initializer.c
+    initialize();
+
+    //Call Batteryread
+    battcharge = Batteryread();
 
     //Enter LPM
+    _low_power_mode_4();
 
-    for()
+    while(1)
     {
-        if(sanitize)
+        if(sanit) //checks if sanitize button was pressed
         {
-            //Readbattery, return %
+            //Call Batteryread
+            battcharge = Batteryread();
 
+            if(battcharge >= 20){
+            //Call Sanitizer.c
+            Sanitize();
+
+            //Reactivate all button presses
+            }
+            sanit = 0; //reset variable for calling analyzer
         }
 
-        if(analyze)
+        if(anaz) //checks if analyze button was pressed
         {
-            //Readbattery, return %
+            //Call Batteryread
+            battcharge = Batteryread();
+
+            if(battcharge >= 20){
+                //Call Analyzer.c
+                Analyze();
+
+               //Reactivate all button presses
+            }
+            anaz = 0; //reset variable for calling analyzer
         }
 
         //enable LPM again just in case
-
+       _low_power_mode_4();
 
     }
 
@@ -45,76 +70,42 @@ int main (void)
 
 
 
-/*
-int main(void)
-{
-    WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
-    PM5CTL0 &= ~LOCKLPM5;       //clear lock and allow new code re-flash/enable GPIO Pins
-
-    P9DIR |= (RedLED|GreenLED|YellowLED|BlueLED);    //direct pin as output
-    P9OUT |= (RedLED|GreenLED|YellowLED|BlueLED);    //turn LEDs OFF (active low)
-
-    //configuring buttons
-    P1DIR &= ~(SanitizeButton|WaterQualityButton); //0: input
-    P1REN |= (SanitizeButton|WaterQualityButton);  //1: enable built in resistors
-    P1OUT |= (SanitizeButton|WaterQualityButton);  //1: Pull up to Vcc
-    P1IE |= (SanitizeButton|WaterQualityButton);   //1:enable interrupts
-    P1IES |= (SanitizeButton|WaterQualityButton);  //1: interrupt on falling edge
-    P1IFG &= ~(SanitizeButton|WaterQualityButton); //0: Clear interrupt flags
-
-    //lastly enable GIE, avoid raising interrupts too soon. Enter low power mode
-    _low_power_mode_4();
-
-
-
-    return 0;
-}*/
-
-
-
-
-
-
 //**********ISR********//
 //*********************//
+
 #pragma vector = PORT1_VECTOR  //Link the ISR to the Vector
 __interrupt void P1_ISR()
 {
-   if( (P1IFG&sanitizeButton) !=0 )
+   if(P1IFG & sanitizebutton) // Detect button 1
    {
-       //Sanitize=true;
-       //Clear flag
+       sanit = 1; // set global sanitize variable
+
        //Disable LPM
+       LPM4_EXIT;
 
-       //Disable other button
-       //See if button is held (timer for 3s)
-     /*  if(buttonHeld)
-       {
-           bluetoothConnect();
-       }*/
+       //Disable other button?
+       //Deactivate current button?
 
-       //Deactivate current button
-       //Call Sanitize.c
 
-       //Reactivate all button presses
-
-                                                       /*P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs
-                                                   P1IFG &= ~SanitizeButton; //clear flag (shared)*/
+       //P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs
+       P1IFG &= ~sanitizebutton; //clear flag (shared)
    }
 
-   if( (P1IFG&waterQualityButton)!= 0 )
+   if( (P1IFG & waterqualitybutton)!= 0 )
    {
-       //Disable other button
-       //See if button is held (timer for 3s)
-          /*  if(buttonHeld)
-            {
-                bluetoothConnect();
-            }*/
 
-       //Deactivate current button
+       anaz = 1; // set global analyze variable
 
-                                                        /*P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs
-                                                           P1IFG &= ~WaterQualityButton; //clear flag (shared)*/
+       //Disable LPM
+       LPM4_EXIT;
+
+
+       //Disable other button?
+       //Deactivate current button?
+
+
+       //P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs
+       P1IFG &= ~waterqualitybutton; //clear flag (shared)
    }
 
 }

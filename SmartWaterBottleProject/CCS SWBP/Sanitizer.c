@@ -7,7 +7,7 @@
 #include <Ports.h>
 #include <Sanitizer.h>
 
-//Initialize timer
+//Start timer
 
 //Turn ON LEDs
 
@@ -17,9 +17,13 @@
 
 //Re-enter LPM
 
+
+
 void Sanitize(void){
 
     P1OUT ^= redLED; // Invert  red LED
+
+
 
     return;
 }

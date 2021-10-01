@@ -1,9 +1,12 @@
 //Smart Water Bottle Project Main Function
-//Programmers: Ryan Koons, Matthew Woodruff, and Dean Pickett
+//Programmers: Dean Pickett, Ryan Koons, and Matthew Woodruff
 //UCF SD
 //8-23-21
 
-
+#include "driverlib.h"
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <Ports.h>
 #include <Initializer.h>
 #include <UART.h>
@@ -11,51 +14,55 @@
 #include <Sanitizer.h>
 #include <Analyzer.h>
 #include <Exporter.h>
-__interrupt void  Port1_ISR() ;
 
-int sanit = 0, anaz = 0; // Global variables to trigger sanitization and analyzing
-int battcharge = 100;
+//I don't think you need function prototypes for vectors
+//__interrupt void  Port1_ISR() ;
+
+//Could use bool to save program space
+bool StartSanitize = 0,StartAnalyze = 0; // Global variables to trigger sanitization and analyzing
+uint8_t BatteryLife = 100;  //uint8_t to save program space
 
 
 int main (void)
 {
-    //Call Initializer.c
+    //Call Initializer.c, set pin-configuration
     initialize();
 
     //Call Batteryread
-    battcharge = Batteryread();
+    BatteryLife = Batteryread();
 
-    //Enter LPM
+    //Enter LPM, also enable GIE bit (don't call until interrupts are set-up)
     _low_power_mode_4();
 
     while(1)
     {
-        if(sanit) //checks if sanitize button was pressed
+        if(StartSanitize) //checks if sanitize button was pressed
         {
             //Call Batteryread
-            battcharge = Batteryread();
+            BatteryLife = Batteryread();
 
-            if(battcharge >= 20){
+            if(BatteryLife>= 20)  //Ensure there is enough battery life, prior to starting sanitization
+            {
             //Call Sanitizer.c
             Sanitize();
-
             //Reactivate all button presses
             }
-            sanit = 0; //reset variable for calling analyzer
+            StartSanitize = 0; //reset variable for calling analyzer
         }
 
-        if(anaz) //checks if analyze button was pressed
+//Remove "Analyze()" in line below
+        if(StartAnalyze) //checks if analyze button was pressed
         {
             //Call Batteryread
-            battcharge = Batteryread();
+           BatteryLife = Batteryread();
 
-            if(battcharge >= 20){
+            if(BatteryLife >= 20) //Ensure there is enough battery life, prior to starting sanitization
+            {
                 //Call Analyzer.c
                 Analyze();
-
                //Reactivate all button presses
             }
-            anaz = 0; //reset variable for calling analyzer
+            StartAnalyze = 0; //reset variable for calling analyzer
         }
 
         //enable LPM again just in case
@@ -73,12 +80,14 @@ int main (void)
 //**********ISR********//
 //*********************//
 
+//Need interrupt for holding down sanitize button, disables sanitization mode and device returns to sleep
+
 #pragma vector = PORT1_VECTOR  //Link the ISR to the Vector
 __interrupt void P1_ISR()
 {
    if(P1IFG & sanitizebutton) // Detect button 1
    {
-       sanit = 1; // set global sanitize variable
+      StartSanitize = 1; // set global sanitize variable
 
        //Disable LPM
        LPM4_EXIT;
@@ -94,7 +103,7 @@ __interrupt void P1_ISR()
    if( (P1IFG & waterqualitybutton)!= 0 )
    {
 
-       anaz = 1; // set global analyze variable
+       StartAnalyze = 1; // set global analyze variable
 
        //Disable LPM
        LPM4_EXIT;

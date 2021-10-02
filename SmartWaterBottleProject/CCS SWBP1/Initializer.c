@@ -19,7 +19,7 @@ void initialize(void) {
        PM5CTL0 &= ~LOCKLPM5; // Enable the GPIO pins
 
        //Sample using DriverLib--P4.3 o/p
-       GPIO_setAsOutputPin(GPIO_PORT_P4, GPIO_PIN3 );  //Project not finding ports and pin defines in gpio.h??
+       GPIO_setAsOutputPin(GPIO_PORT_P4, GPIO_PIN3 );  //
 
 
       // P9DIR |= (redLED|greenLED|yellowLED|blueLED);    //direct port 1 pins as output

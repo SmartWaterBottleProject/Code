@@ -11,8 +11,11 @@
 //Relating pins and ports from the Driverlib API to project function.
 
 #include <msp430.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <driverlib.h>
+#include <intrinsics.h>
+
 
 #ifndef PORTS_H_
 #define PORTS_H_

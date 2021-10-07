@@ -3,9 +3,8 @@
 //UCF SD
 //8-23-21
 
+//**************   I changed the target configuration to 6989 for developing on the launchpad  ************************\\
 
-
-#include <stdbool.h>
 #include <stdint.h>
 #include <Ports.h>
 #include <Initializer.h>
@@ -15,11 +14,9 @@
 #include <Analyzer.h>
 #include <Exporter.h>
 
-//I don't think you need function prototypes for vectors
-//__interrupt void  Port1_ISR() ;
 
 //Could use bool to save program space
-bool StartSanitize = 0,StartAnalyze = 0; // Global variables to trigger sanitization and analyzing
+bool StartSanitize = 0,StartAnalyze = 0, REED = 1; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 uint8_t BatteryLife = 100;  //uint8_t to save program space
 
 
@@ -31,7 +28,9 @@ int main (void)
     //Call Batteryread
     BatteryLife = Batteryread();
 
-    //Enter LPM, also enable GIE bit (don't call until interrupts are set-up)
+
+    // Enable the global interrupt bit and enable low power mode
+    _enable_interrupts();
     _low_power_mode_4();
 
     while(1)
@@ -44,13 +43,18 @@ int main (void)
             if(BatteryLife>= 20)  //Ensure there is enough battery life, prior to starting sanitization
             {
             //Call Sanitizer.c
-            Sanitize();
-            //Reactivate all button presses
+            Sanitize(&REED);
+
             }
-            StartSanitize = 0; //reset variable for calling analyzer
+            StartSanitize = 0; // reset variable for calling sanitizer
+
+            REED=1; //for testing Reed interrupt with analyzer button
+
+            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
+            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
         }
 
-//Remove "Analyze()" in line below
+//Remove "Analyze()" in line below => Not sure why, that's just calling the analyze function -Dean
         if(StartAnalyze) //checks if analyze button was pressed
         {
             //Call Batteryread
@@ -60,9 +64,12 @@ int main (void)
             {
                 //Call Analyzer.c
                 Analyze();
-               //Reactivate all button presses
+
             }
             StartAnalyze = 0; //reset variable for calling analyzer
+
+            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
+            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
         }
 
         //enable LPM again just in case
@@ -81,40 +88,51 @@ int main (void)
 //*********************//
 
 //Need interrupt for holding down sanitize button, disables sanitization mode and device returns to sleep
+//why do we want to turn off with button when it shuts off when cap is unscrewed? A half turn of the lid
+//would be enough to disengage the Reed switch
 
 #pragma vector = PORT1_VECTOR  //Link the ISR to the Vector
 __interrupt void P1_ISR()
 {
-   if(P1IFG & sanitizebutton) // Detect button 1
+   if(P1IFG & SanitizeButtonPin) // Detect button 1
    {
       StartSanitize = 1; // set global sanitize variable
 
        //Disable LPM
        LPM4_EXIT;
 
-       //Disable other button?
-       //Deactivate current button?
+
+       //Deactivate both buttons
+       GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);
+       //GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
 
 
-       //P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs
-       P1IFG &= ~sanitizebutton; //clear flag (shared)
+       //P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs, haven't messed with this yet, not
+                                                       // sure why this is here
+
+       GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
    }
 
-   if( (P1IFG & waterqualitybutton)!= 0 )
+   else if(P1IFG & AnalyzeButtonPin)
    {
 
-       StartAnalyze = 1; // set global analyze variable
+       //StartAnalyze = 1; // set global analyze variable
 
+       REED = 0; // this is for testing Reed interrupt functionality on launchpad
        //Disable LPM
-       LPM4_EXIT;
+       //LPM4_EXIT;
 
 
-       //Disable other button?
-       //Deactivate current button?
+       //Deactivate both buttons
+      // GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);
+      // GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
 
 
-       //P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs
-       P1IFG &= ~waterqualitybutton; //clear flag (shared)
+       //P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs, haven't messed with this yet, not
+                                                       // sure why this is here
+       GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
    }
 
 }
+
+

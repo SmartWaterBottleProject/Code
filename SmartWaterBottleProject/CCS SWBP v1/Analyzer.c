@@ -15,7 +15,7 @@
 
 void Analyze(void){
 
-    P9OUT ^= greenLED; // Toggle the green LED
+    P9OUT ^= GPIO_PIN7; // Toggle the green LED
 
     return;
 }

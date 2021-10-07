@@ -8,6 +8,6 @@
 #ifndef SANITIZER_H_
 #define SANITIZER_H_
 
-void Sanitize(void);
+void Sanitize(bool*);
 
 #endif /* SANITIZER_H_ */

@@ -5,7 +5,7 @@
  *      Author: User
  */
 #include <Batteryreader.h>
-#include <Ports.h>
+#include <Def.h>
 
 //ADC read on Battery voltage
     //Compare to 2-d array (hash table) of voltages to determine device battery %, rounded to the nearest 5% (voltage,%)

@@ -6,12 +6,12 @@
 //**************   I changed the target configuration to 6989 for developing on the launchpad  ************************\\
 
 #include <stdint.h>
-#include <Ports.h>
 #include <Initializer.h>
 #include <UART.h>
 #include <Batteryreader.h>
 #include <Sanitizer.h>
 #include <Analyzer.h>
+#include <Def.h>
 #include <Exporter.h>
 
 

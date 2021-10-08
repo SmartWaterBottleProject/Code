@@ -8,6 +8,8 @@
 #ifndef SANITIZER_H_
 #define SANITIZER_H_
 
+#include <stdbool.h>
+
 void Sanitize(bool*);
 
 #endif /* SANITIZER_H_ */

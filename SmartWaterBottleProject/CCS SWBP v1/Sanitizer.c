@@ -4,7 +4,7 @@
  *  Created on: Aug 23, 2021
  *      Author: User
  */
-#include <Ports.h>
+#include <Def.h>
 #include <Sanitizer.h>
 
 bool sanitize; // need something for the timer interrupt vector to be able to modify and end while loop
@@ -47,8 +47,8 @@ void Sanitize(bool* safe){ //takes the address of REED to have access to the sta
         // Enable the global interrupt bit,
         //_enable_interrupts();
 
-
-        P1OUT |= GPIO_PIN0; // turn on red LED
+        GPIO_setOutputLowOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn on Yellow sanitization LEDs
+        GPIO_setOutputHighOnPin(UVCEnablePort, UVCEnablePin); // Enable UVCs
 
         while(sanitize && *safe){} //code waits here until timer shuts LEDs off, checks values of StartSanitize and REED
     }
@@ -62,6 +62,10 @@ void Sanitize(bool* safe){ //takes the address of REED to have access to the sta
 __interrupt void T0A0_ISR() {
 
     sanitize = 0; //end sanitize function
+    GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
+    GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
 
     // Hardware clears the flag, CCIFG in TA0CCTL0
 }
+
+//Need to add interrupt for Reed switch transitioning high (cap being removed from bottle)

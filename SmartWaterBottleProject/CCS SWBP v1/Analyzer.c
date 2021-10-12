@@ -22,15 +22,15 @@ void Analyze(void){
     return;
 }
 
-int Step(int MoveBy){
-	//Move the stepper motor up or down the MoveBy number of times.
-	return MoveBy;
-}
-
-int GetVolt(){
-	//Get the voltage from the ADC
-	return VOLT;
-}
+//int Step(int MoveBy){
+//	//Move the stepper motor up or down the MoveBy number of times.
+//	return MoveBy;
+//}
+//
+//int GetVolt(){
+//	//Get the voltage from the ADC
+//	return VOLT;
+//}
 
 
 

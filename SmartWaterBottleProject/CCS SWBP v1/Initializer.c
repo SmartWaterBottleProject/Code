@@ -77,9 +77,10 @@ void initialize(void) {
        GPIO_setAsOutputPin(UVCEnablePort, UVCEnablePin);                                    //Set UVC enable as output
        GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);                                 //Disable UVCs by default
        GPIO_setAsInputPin(ReedSwitchPort,ReedSwitchPin);                                    //Set reed switch as input
-       GPIO_setAsInputPinWithPullUpResistor(ReedSwitchPort,ReedSwitchPin);                  //Configure reed switch as pulled high by default (will have constant current draw whenever lid is attached)
+       GPIO_setAsInputPinWithPullUpResistor(ReedSwitchPort,ReedSwitchPin);                  //Configure reed (normally closed) switch as pulled high by default (will have constant current draw whenever lid is not attached)
        GPIO_enableInterrupt(ReedSwitchPort,ReedSwitchPin);                                  //Enable interrupt for reed switch
-       GPIO_selectInterruptEdge(ReedSwitchPort,ReedSwitchPin,GPIO_LOW_TO_HIGH_TRANSITION);  //Set rising edge for reed switch interrupt
+       GPIO_selectInterruptEdge(ReedSwitchPort,ReedSwitchPin,GPIO_HIGH_TO_LOW_TRANSITION);  //Set falling edge for reed switch
+       GPIO_clearInterrupt(ReedSwitchPort, ReedSwitchPin);                                  //clear reed switch interrupt
        GPIO_setAsOutputPin(PhotoresistorEnablePort, PhotoresistorEnablePin);                //Set photoresistor enable as output
 
 

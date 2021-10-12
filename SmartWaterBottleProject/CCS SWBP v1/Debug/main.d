@@ -11,11 +11,11 @@ main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/sys/
 main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/machine/_types.h
 main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/machine/_stdint.h
 main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/sys/_stdint.h
+main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdbool.h
 main.obj: C:/Users/User/CCS\ SWBP\ v1/Initializer.h
 main.obj: C:/Users/User/CCS\ SWBP\ v1/UART.h
 main.obj: C:/Users/User/CCS\ SWBP\ v1/Batteryreader.h
 main.obj: C:/Users/User/CCS\ SWBP\ v1/Sanitizer.h
-main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdbool.h
 main.obj: C:/Users/User/CCS\ SWBP\ v1/Analyzer.h
 main.obj: C:/Users/User/CCS\ SWBP\ v1/Def.h
 main.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430.h
@@ -87,6 +87,8 @@ C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/machine/_stdin
 
 C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/sys/_stdint.h:
 
+C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdbool.h:
+
 C:/Users/User/CCS\ SWBP\ v1/Initializer.h:
 
 C:/Users/User/CCS\ SWBP\ v1/UART.h:
@@ -94,8 +96,6 @@ C:/Users/User/CCS\ SWBP\ v1/UART.h:
 C:/Users/User/CCS\ SWBP\ v1/Batteryreader.h:
 
 C:/Users/User/CCS\ SWBP\ v1/Sanitizer.h:
-
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdbool.h:
 
 C:/Users/User/CCS\ SWBP\ v1/Analyzer.h:
 

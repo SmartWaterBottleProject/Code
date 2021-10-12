@@ -5,7 +5,10 @@
 
 //**************   I changed the target configuration to 6989 for developing on the launchpad  ************************\\
 
+//Added boo;l StartOrStop--probably not needed and can be removed
+
 #include <stdint.h>
+#include <stdbool.h>
 #include <Initializer.h>
 #include <UART.h>
 #include <Batteryreader.h>
@@ -16,7 +19,8 @@
 
 
 //Could use bool to save program space
-bool StartSanitize = 0,StartAnalyze = 0, REED = 1; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+bool StartSanitize = 0, StopSanitize =0, StartAnalyze = 0, REED = 1; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
 uint8_t BatteryLife = 100;  //uint8_t to save program space
 
 
@@ -28,12 +32,16 @@ int main (void)
     //Call Batteryread
     BatteryLife = Batteryread();
 
+    //Define main variables
+//bool SanitizerStartOrStop=0;  //Used for declaring beginning or end of Process
+
 
     // Enable the global interrupt bit and enable low power mode
     _enable_interrupts();
-    _low_power_mode_4();
+//    sleep:
+//    _low_power_mode_4();
 
-    while(1)
+    for(;;)
     {
         if(StartSanitize) //checks if sanitize button was pressed
         {
@@ -42,17 +50,34 @@ int main (void)
 
             if(BatteryLife>= 20)  //Ensure there is enough battery life, prior to starting sanitization
             {
-            //Call Sanitizer.c
-            Sanitize(&REED);
+            //Call Sanitizer.c to start sanitization
+            ProcessRunningNot =0;  //Blocking term for process
+            Sanitize(&REED, START);  //Call sanitization function to start sanitizer
+//            StopSanitize =1;  //Next time this if statement executes, the sanitizer should stop--might not need this
 
             }
-            StartSanitize = 0; // reset variable for calling sanitizer
 
-            REED=1; //for testing Reed interrupt with analyzer button
+            else {
+                //Should eventually Blink red LED for low battery
+                GPIO_setOutputLowOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED ON
+            }
 
-            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
-            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
+            StartSanitize = 0;  //Clear sanitization mode, not enough battery life to perform
+
+//            StartSanitize = 0; // reset variable for calling sanitizer, --I dont know if we want to do this yet RKK
+
+//            REED=1; //for testing Reed interrupt with analyzer button
+//
+//            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
+//            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
         }
+
+//RKK Dont think we need this actually
+//        if(StopSanitize)  //Terminate the UVC LED and process
+//        {
+//            Sanitize(&REED, STOP);  //Call sanitize.c to stop sanitizer
+//            StopSanitize=0;  //Sanitization is finished
+//        }
 
 //Remove "Analyze()" in line below => Not sure why, that's just calling the analyze function -Dean
         if(StartAnalyze) //checks if analyze button was pressed
@@ -72,8 +97,8 @@ int main (void)
             GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
         }
 
-        //enable LPM again just in case
-       _low_power_mode_4();
+        //enable LPM again just in case--I think this is actually really bad
+      _low_power_mode_4();
 
     }
 
@@ -89,13 +114,35 @@ int main (void)
 
 //Need interrupt for holding down sanitize button, disables sanitization mode and device returns to sleep
 //why do we want to turn off with button when it shuts off when cap is unscrewed? A half turn of the lid
-//would be enough to disengage the Reed switch
+//would be enough to disengage the Reed switch--RKK Not sure I follow
+
+//Need to add interrupt for Reed switch transitioning low (cap being removed from bottle) P2.7 LLWU Interrupt Vector
+#pragma vector = PORT2_VECTOR  //Link the ISR to the Vector
+__interrupt void P2_ISR()
+{
+    if(P2IFG & ReedSwitchPin)  //Detect Reed Switch closing
+    {
+        //Stop Everything
+        GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
+        GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
+        REED =0;
+    }
+}
+
+//Need to add interrupt for 3 second timer when button is held down during device mode
 
 #pragma vector = PORT1_VECTOR  //Link the ISR to the Vector
 __interrupt void P1_ISR()
 {
    if(P1IFG & SanitizeButtonPin) // Detect button 1
    {
+       //Check if sanitizer is already running, when button is held for three seconds during sanitization, UVCs turn off
+//       if( StartSanitize)
+//       {
+//           //Set timer for 3 seconds to see if button is still held
+//       }
+//       else
+//       {
       StartSanitize = 1; // set global sanitize variable
 
        //Disable LPM
@@ -104,13 +151,15 @@ __interrupt void P1_ISR()
 
        //Deactivate both buttons
        GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);
-       //GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
+       GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
 
 
        //P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs, haven't messed with this yet, not
                                                        // sure why this is here
 
        GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
+  // }
+
    }
 
    else if(P1IFG & AnalyzeButtonPin)
@@ -134,5 +183,28 @@ __interrupt void P1_ISR()
    }
 
 }
+//When sanitizer is done
+#pragma vector = TIMER0_A0_VECTOR // Link the ISR to the vector
+__interrupt void T0A0_ISR() {
+
+//    sanitize = 0; //end sanitize function
+    GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
+    GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
+//    GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //This is only here to make sure this vector triggers in main and terminates UVCs
+    //Clear Timer A0 flag and disable interrupt
+    TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
+    TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+
+
+    ProcessRunningNot = 1; //Process is no longer running
+
+    GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
+    GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
+
+    // Hardware clears the flag, CCIFG in TA0CCTL0
+}
+
+
+
 
 

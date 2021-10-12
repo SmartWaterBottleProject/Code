@@ -21,7 +21,7 @@ bool sanitize; // need something for the timer interrupt vector to be able to mo
 
 
 
-void Sanitize(bool* safe){ //takes the address of REED to have access to the status of the Reed switch
+void Sanitize(bool* safe, bool StartOrStop){ //takes the address of REED to have access to the status of the Reed switch
     //one sanitization cycle should be 3 minutes (625 Hz x 180 seconds = 112,500 for counter, which starts at zero)
 
     /* hey, the driverlib functions want me to use a struct just to initialize up mode, this is done in one line
@@ -35,7 +35,8 @@ void Sanitize(bool* safe){ //takes the address of REED to have access to the sta
     */
     sanitize=1; //global variable for Santizer.c, initialized on here and toggled off by TimerA0
 
-    if(*safe){ // checks that reed switch is closed, cap is secure, dereferencing REED address
+  //Start sanitizer
+    if((*safe) && (!StartOrStop)){ // checks that reed switch is closed, cap is secure, dereferencing REED address
 
         TA0CCTL0 |= CCIE; // Enable Channel 0 CCIE bit
         TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
@@ -50,22 +51,35 @@ void Sanitize(bool* safe){ //takes the address of REED to have access to the sta
         GPIO_setOutputLowOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn on Yellow sanitization LEDs
         GPIO_setOutputHighOnPin(UVCEnablePort, UVCEnablePin); // Enable UVCs
 
-        while(sanitize && *safe){} //code waits here until timer shuts LEDs off, checks values of StartSanitize and REED
+        return;  //Go back to main code, stay in LPM until sanitizer is done, cancelled, or cap is removed
     }
-    P1OUT &= ~GPIO_PIN0; // turn off  red LED
 
-    return;
+
+
+
+    //Need to add interrupt for Reed switch transitioning low (cap being removed from bottle) P2.7 LLWU Interrupt Vector
+//    #pragma vector = PORT2_VECTOR  //Link the ISR to the Vector
+//    __interrupt void P2_ISR()
+//    {
+//        if(P2IFG & ReedSwitchPin)  //Detect Reed Switch closing
+//        {
+//            //Stop Everything
+//            GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
+//            GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
+//        }
+//    }
+
+
+//        _low_power_mode_4();  //Re-enter LPM until sanitizer is done or cap is removed
+//        while(sanitize && *safe){} //code waits here until timer shuts LEDs off, checks values of StartSanitize and REED
+//    }
+//    P1OUT &= ~GPIO_PIN0; // turn off  red LED
+
+   // return;
 }
 
 
-#pragma vector = TIMER0_A0_VECTOR // Link the ISR to the vector
-__interrupt void T0A0_ISR() {
+//Moved vector for timer to main function
 
-    sanitize = 0; //end sanitize function
-    GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
-    GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
 
-    // Hardware clears the flag, CCIFG in TA0CCTL0
-}
 
-//Need to add interrupt for Reed switch transitioning high (cap being removed from bottle)

@@ -10,6 +10,9 @@
     //Initialize UART
 //Set-up all of the timer modules
 
+//Need to initialize all unused ports as pulled high inputs to avoid excess current draw***************************************************************
+
+
 #include <Initializer.h>
 #include <driverlib.h>
 #include <Def.h>

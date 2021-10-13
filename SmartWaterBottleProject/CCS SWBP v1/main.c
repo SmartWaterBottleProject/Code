@@ -3,9 +3,11 @@
 //UCF SD
 //8-23-21
 
+//Current implementaton: Blue LED and Yellow LED--Sanitization. Green LED-enterring reed(); (cap removed)
+
 //**************   I changed the target configuration to 6989 for developing on the launchpad  ************************\\
 
-//Added boo;l StartOrStop--probably not needed and can be removed
+//Added bool StartOrStop--probably not needed and can be removed
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -32,6 +34,15 @@ int main (void)
     //Call Batteryread
     BatteryLife = Batteryread();
 
+    //See if cap is on or not
+    if(GPIO_getInputPinValue(ReedSwitchPort, ReedSwitchPin) == 0)
+    {
+        //Cap is removed
+        REED = 0;  //Reed switch is closed (cap removed)
+        ProcessRunningNot =0;  //Process is running (reed switch removed)
+        GPIO_clearInterrupt(ReedSwitchPort, ReedSwitchPin);  //Clear interrupt called for falling edge of reed switch
+    }
+
     //Define main variables
 //bool SanitizerStartOrStop=0;  //Used for declaring beginning or end of Process
 
@@ -43,7 +54,12 @@ int main (void)
 
     for(;;)
     {
-        if(StartSanitize) //checks if sanitize button was pressed
+        //when reed switch is closed (cap removed) poll for cap being reattached
+        if((REED == 0) && (ProcessRunningNot == 0))
+        {
+            reed();  //Call reed polling function
+        }
+        if(StartSanitize && ProcessRunningNot) //checks if sanitize button was pressed, and no other process is running
         {
             //Call Batteryread
             BatteryLife = Batteryread();
@@ -80,7 +96,7 @@ int main (void)
 //        }
 
 //Remove "Analyze()" in line below => Not sure why, that's just calling the analyze function -Dean
-        if(StartAnalyze) //checks if analyze button was pressed
+        if(StartAnalyze && ProcessRunningNot) //checks if analyze button was pressed, and no other process is running
         {
             //Call Batteryread
            BatteryLife = Batteryread();
@@ -125,7 +141,11 @@ __interrupt void P2_ISR()
         //Stop Everything
         GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
         GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
-        REED =0;
+        REED = 0;
+        ProcessRunningNot =0;  //Process is running (reed switch removed)
+        LPM4_EXIT;
+        GPIO_clearInterrupt(ReedSwitchPort, ReedSwitchPin);  //Clear interrupt called for falling edge of reed switch
+
     }
 }
 
@@ -167,11 +187,11 @@ __interrupt void P1_ISR()
 
        //StartAnalyze = 1; // set global analyze variable
 
-       REED = 0; // this is for testing Reed interrupt functionality on launchpad
+      // REED = 0; // this is for testing Reed interrupt functionality on launchpad
        //Disable LPM
        //LPM4_EXIT;
 
-
+       LPM4_EXIT;  //I think this is necessary?
        //Deactivate both buttons
       // GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);
       // GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);

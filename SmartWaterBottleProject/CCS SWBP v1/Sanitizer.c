@@ -29,7 +29,7 @@ void Sanitize(bool* safe, bool StartOrStop){ //takes the address of REED to have
 
     Timer_A_clear(0340); //Timer A0 base address is 0340 in hex, taken from p.133 from MSP430 datasheet
 
-    Timer_A_initUpMode(0340, Timer_A_initUpModeParam param);
+    Timer_A_initUpMode(0340, Timer_A_initUpModeParam param);
 
     Timer_A_enableInterrupt(0340);
     */

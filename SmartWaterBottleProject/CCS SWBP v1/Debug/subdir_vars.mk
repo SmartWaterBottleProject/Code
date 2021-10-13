@@ -13,6 +13,7 @@ C_SRCS += \
 ../Batteryreader.c \
 ../Exporter.c \
 ../Initializer.c \
+../Reed.c \
 ../Sanitizer.c \
 ../UART.c \
 ../main.c 
@@ -22,6 +23,7 @@ C_DEPS += \
 ./Batteryreader.d \
 ./Exporter.d \
 ./Initializer.d \
+./Reed.d \
 ./Sanitizer.d \
 ./UART.d \
 ./main.d 
@@ -31,6 +33,7 @@ OBJS += \
 ./Batteryreader.obj \
 ./Exporter.obj \
 ./Initializer.obj \
+./Reed.obj \
 ./Sanitizer.obj \
 ./UART.obj \
 ./main.obj 
@@ -40,6 +43,7 @@ OBJS__QUOTED += \
 "Batteryreader.obj" \
 "Exporter.obj" \
 "Initializer.obj" \
+"Reed.obj" \
 "Sanitizer.obj" \
 "UART.obj" \
 "main.obj" 
@@ -49,6 +53,7 @@ C_DEPS__QUOTED += \
 "Batteryreader.d" \
 "Exporter.d" \
 "Initializer.d" \
+"Reed.d" \
 "Sanitizer.d" \
 "UART.d" \
 "main.d" 
@@ -58,6 +63,7 @@ C_SRCS__QUOTED += \
 "../Batteryreader.c" \
 "../Exporter.c" \
 "../Initializer.c" \
+"../Reed.c" \
 "../Sanitizer.c" \
 "../UART.c" \
 "../main.c" 

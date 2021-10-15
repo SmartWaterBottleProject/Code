@@ -79,7 +79,7 @@ void Sanitize(bool* safe, bool StartOrStop){ //takes the address of REED to have
 }
 
 
-//Moved vector for timer to main function
+
 
 
 

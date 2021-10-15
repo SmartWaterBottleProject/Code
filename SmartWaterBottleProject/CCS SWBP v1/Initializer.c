@@ -74,6 +74,7 @@ void initialize(void) {
        GPIO_setAsOutputPin(MotorEnablePort, MotorEnablePin);            //Configure Motor Enable as output
        GPIO_setOutputLowOnPin(MotorEnablePort, MotorEnablePin);         //Disable motor by default
        GPIO_setAsOutputPin(StepperSleepPort, StepperSleepPin);          //Configure stepper sleep as output
+       GPIO_setOutputLowOnPin(StepperSleepPort, StepperSleepPin);       //By default, stepper motor is asleep, approx. 1uA current
 
 //--------------Sanitization------------------------------------------------------------------------------------------------------//
 

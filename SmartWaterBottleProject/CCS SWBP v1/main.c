@@ -21,9 +21,12 @@
 
 
 //Could use bool to save program space
-bool StartSanitize = 0, StopSanitize =0, StartAnalyze = 0, REED = 1; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+bool StartSanitize = 0, StopSanitize =0, StartAnalyze = 0, ReedOpen = 1; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+//ReedOpen=1, cap is on ReedOpen=0 cap is off
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
 uint8_t BatteryLife = 100;  //uint8_t to save program space
+
+void reed();  //Function for polling reed switch when cap is removed
 
 
 int main (void)
@@ -34,11 +37,13 @@ int main (void)
     //Call Batteryread
     BatteryLife = Batteryread();
 
+    _enable_interrupts();
+
     //See if cap is on or not
     if(GPIO_getInputPinValue(ReedSwitchPort, ReedSwitchPin) == 0)
     {
         //Cap is removed
-        REED = 0;  //Reed switch is closed (cap removed)
+        ReedOpen = 0;  //Reed switch is closed (cap removed)
         ProcessRunningNot =0;  //Process is running (reed switch removed)
         GPIO_clearInterrupt(ReedSwitchPort, ReedSwitchPin);  //Clear interrupt called for falling edge of reed switch
     }
@@ -48,14 +53,14 @@ int main (void)
 
 
     // Enable the global interrupt bit and enable low power mode
-    _enable_interrupts();
+
 //    sleep:
 //    _low_power_mode_4();
 
     for(;;)
     {
         //when reed switch is closed (cap removed) poll for cap being reattached
-        if((REED == 0) && (ProcessRunningNot == 0))
+        if((ReedOpen == 0) && (ProcessRunningNot == 0))
         {
             reed();  //Call reed polling function
         }
@@ -68,7 +73,7 @@ int main (void)
             {
             //Call Sanitizer.c to start sanitization
             ProcessRunningNot =0;  //Blocking term for process
-            Sanitize(&REED, START);  //Call sanitization function to start sanitizer
+            Sanitize(&ReedOpen, START);  //Call sanitization function to start sanitizer
 //            StopSanitize =1;  //Next time this if statement executes, the sanitizer should stop--might not need this
 
             }
@@ -82,7 +87,7 @@ int main (void)
 
 //            StartSanitize = 0; // reset variable for calling sanitizer, --I dont know if we want to do this yet RKK
 
-//            REED=1; //for testing Reed interrupt with analyzer button
+//            ReedOpen=1; //for testing Reed interrupt with analyzer button
 //
 //            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
 //            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
@@ -91,7 +96,7 @@ int main (void)
 //RKK Dont think we need this actually
 //        if(StopSanitize)  //Terminate the UVC LED and process
 //        {
-//            Sanitize(&REED, STOP);  //Call sanitize.c to stop sanitizer
+//            Sanitize(&ReedOpen, STOP);  //Call sanitize.c to stop sanitizer
 //            StopSanitize=0;  //Sanitization is finished
 //        }
 
@@ -104,7 +109,7 @@ int main (void)
             if(BatteryLife >= 20) //Ensure there is enough battery life, prior to starting sanitization
             {
                 //Call Analyzer.c
-                Analyze();
+               // Analyze();
 
             }
             StartAnalyze = 0; //reset variable for calling analyzer
@@ -113,12 +118,56 @@ int main (void)
             GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
         }
 
-        //enable LPM again just in case--I think this is actually really bad
+        //enable LPM again just in case
       _low_power_mode_4();
 
     }
 
     return 0;
+}
+
+//For launchpad: Use breadboard short/open between P2.7 and nearby ground pin to simulate reed switch behavior
+
+//Once reed switch is removed, do the following:
+    //Disable Pull up on reed signal to eliminate current draw
+    //Enable pull down resistor on reed signal
+//    Wait one second
+//    Re-enable pullup and check to see if pin is high or low
+//        if (high): Reed switch is open, and cap is reattached to device.
+//                Keep pull up on pin and return to normal device operation.
+//                ReedOpen=1
+//                ProcessRunningNot = 1
+//        if (low) Reed switch is stil closed (shorted to 0V), disable pull up, and re-enable pull down
+void reed()
+{
+    //Check to see if cap was placed back on
+    if(GPIO_getInputPinValue(ReedSwitchPort, ReedSwitchPin) == 1)
+    {
+ //DOnt need this
+//        GPIO_setAsInputPinWithPullUpResistor(ReedSwitchPort, ReedSwitchPin);//Reconfigure reed switch pin as pulled high input
+        ProcessRunningNot = 1;  //Process no longer running
+        ReedOpen = 1 ; //Cap is back on, reed switch is open
+        return;
+    }
+
+    else
+    {
+        GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn on Green
+        GPIO_setAsInputPinWithPullDownResistor(ReedSwitchPort, ReedSwitchPin);  //Switch pull up to pull down reed switch (this eliminates current draw)
+        //Configure timer for 1 second with interrupt
+        TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+        TA0CCR0=39063-1; //@39kHz, 1 second
+        TA0CTL= TASSEL_1 | ID_0 | MC_1 | TACLR;  //ACLK=39kHz, No ID, Up Mode
+
+        _low_power_mode_4();
+
+        if(ReedOpen)
+        {
+
+            //Process is no longer running
+            return;
+        }
+    }
 }
 
 
@@ -141,7 +190,7 @@ __interrupt void P2_ISR()
         //Stop Everything
         GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
         GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
-        REED = 0;
+        ReedOpen = 0;
         ProcessRunningNot =0;  //Process is running (reed switch removed)
         LPM4_EXIT;
         GPIO_clearInterrupt(ReedSwitchPort, ReedSwitchPin);  //Clear interrupt called for falling edge of reed switch
@@ -185,9 +234,9 @@ __interrupt void P1_ISR()
    else if(P1IFG & AnalyzeButtonPin)
    {
 
-       //StartAnalyze = 1; // set global analyze variable
+       StartAnalyze = 1; // set global analyze variable
 
-      // REED = 0; // this is for testing Reed interrupt functionality on launchpad
+      // ReedOpen = 0;// this is for testing Reed interrupt functionality on launchpad
        //Disable LPM
        //LPM4_EXIT;
 
@@ -203,23 +252,47 @@ __interrupt void P1_ISR()
    }
 
 }
-//When sanitizer is done
+
 #pragma vector = TIMER0_A0_VECTOR // Link the ISR to the vector
 __interrupt void T0A0_ISR() {
 
-//    sanitize = 0; //end sanitize function
-    GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
-    GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
-//    GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //This is only here to make sure this vector triggers in main and terminates UVCs
-    //Clear Timer A0 flag and disable interrupt
-    TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
-    TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+    if(ReedOpen == 0)
+    {
+           //Clear Timer A0 flag
+           //TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
+           TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+           GPIO_setAsInputPinWithPullUpResistor(ReedSwitchPort, ReedSwitchPin);//Reconfigure reed switch pin as pulled high input
+
+           if(GPIO_getInputPinValue(ReedSwitchPort, ReedSwitchPin) == 1)     //Check to see if cap was placed back on
+           {
+              ReedOpen = 1; //Cap is no longer off, switch is open again
+              LPM4_EXIT;  //Exit low power mode
+           }
+           else
+           {
+               GPIO_setAsInputPinWithPullDownResistor(ReedSwitchPort, ReedSwitchPin);//Reconfigure reed switch pin as pulled low input (eliminate current draw)
+               GPIO_toggleOutputOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Toggle Green LED every second
+           }
+    }
+
+    else
+    {
+        //    sanitize = 0; //end sanitize function
+            GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
+            GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
+        //    GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //This is only here to make sure this vector triggers in main and terminates UVCs
+            //Clear Timer A0 flag and disable interrupt
+            TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
+            TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
 
 
-    ProcessRunningNot = 1; //Process is no longer running
+            ProcessRunningNot = 1; //Process is no longer running
 
-    GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
-    GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
+            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
+            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
+
+    }
+
 
     // Hardware clears the flag, CCIFG in TA0CCTL0
 }

@@ -155,6 +155,7 @@ void reed()
         GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn on Green
         GPIO_setAsInputPinWithPullDownResistor(ReedSwitchPort, ReedSwitchPin);  //Switch pull up to pull down reed switch (this eliminates current draw)
         //Configure timer for 1 second with interrupt
+        TA0CCTL0 |= CCIE; // Enable Channel 0 CCIE bit
         TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
         TA0CCR0=39063-1; //@39kHz, 1 second
         TA0CTL= TASSEL_1 | ID_0 | MC_1 | TACLR;  //ACLK=39kHz, No ID, Up Mode
@@ -165,6 +166,9 @@ void reed()
         {
 
             //Process is no longer running
+            ProcessRunningNot = 1;  //Process no longer running
+            ReedOpen = 1 ; //Cap is back on, reed switch is open
+            GPIO_setOutputHighOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn Green LED Off
             return;
         }
     }

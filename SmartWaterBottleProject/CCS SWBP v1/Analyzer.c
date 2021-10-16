@@ -4,8 +4,8 @@
 // *  Created on: Aug 23, 2021
 // *      Author: User
 // */
-//#include <Analyzer.h>
-//#include <Def.h>
+#include <Analyzer.h>
+#include <Def.h>
 //
 //// Configure PWM Move motor
 ////Enable and disable LD
@@ -22,8 +22,8 @@
 //
 //int Step(int);  //Steps the stepper motor over the input number of times
 //
-//uint16_t* Analyze(void)
-//{
+uint16_t * Analyze(void)
+{
 //    uint16_t MAX = ZERO;      //Measured Max. value from ADC read
 //    uint16_t Voltage;         //Stores voltage from ADC
 //    bool PassedPeak = 0;      //Have we passed the peak, 0-no, 1-yes
@@ -80,8 +80,8 @@
 //    }
 //
 //
-//    return;
-//}
+    return;
+}
 //
 ////int Step(int MoveBy){
 ////	//Move the stepper motor up or down the MoveBy number of times.

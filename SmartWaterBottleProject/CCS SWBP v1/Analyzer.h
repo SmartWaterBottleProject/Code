@@ -7,7 +7,8 @@
 
 #ifndef ANALYZER_H_
 #define ANALYZER_H_
+#include <stdint.h>
 
-void Analyze(void);
+uint16_t * Analyze(void);
 
 #endif /* ANALYZER_H_ */

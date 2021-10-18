@@ -9,6 +9,7 @@
 
 //Added bool StartOrStop--probably not needed and can be removed
 
+#include <msp430.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <Initializer.h>
@@ -152,16 +153,39 @@ void reed()
 
     else
     {
+        //Disable interrupts for buttons
+        GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Disable interrupt for sanitization button
+        GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);    //Disable interrupt for analysis button
+
         GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn on Green
         GPIO_setAsInputPinWithPullDownResistor(ReedSwitchPort, ReedSwitchPin);  //Switch pull up to pull down reed switch (this eliminates current draw)
-        //Configure timer for 1 second with interrupt
-        TA0CCTL0 |= CCIE; // Enable Channel 0 CCIE bit
-        TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
-        TA0CCR0=39063-1; //@39kHz, 1 second
-        TA0CTL= TASSEL_1 | ID_0 | MC_1 | TACLR;  //ACLK=39kHz, No ID, Up Mode
 
-        _low_power_mode_4();
+//        TA0CCR0 = (62500-1);  //2 seconds, at 1Mhz/8
+//        TA0CCTL0 |= CCIE; // Enable Channel 0 CCIE bit
+//        TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+//        // Timer_A: ACLK, div by 1, up mode, clear TAR (leaves TAIE=0)
+//        TA0CTL = TASSEL_1 | ID_3 | MC_1;
 
+//        //Configure Channel 0 for up mode with interrupt
+//            TA0CCR0= (32000-1); // 1 second period @ 32kHz
+//            TA0CCTL0 |= CCIE;  //enable Channel 0 CCIE Bit
+//            TA0CCTL0 &= ~CCIFG; //clear channel 0 CCIFG Bit
+//
+//            //Configure Timer_A: ACLK, Divide by 1, up Mode, clear TAR, enable interrupt for rollback event (leaves TAIE=0)
+//            TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
+//            TA0CTL &= ~TAIFG; //Clear flag at start
+
+//        //Configure Channel 0 for up mode with interrupt
+//       TA0CCR0= (62500-1); // 1 second period @ 32kHz
+        TA0CCTL0 |= CCIE;  //enable Channel 0 CCIE Bit
+        TA0CCTL0 &= ~CCIFG; //clear channel 0 CCIFG Bit
+//        //Configure Timer_A: ACLK, Divide by 1, up Mode, clear TAR, enable interrupt for rollback event (leaves TAIE=0)
+        TA0CTL = TASSEL_2 | ID_3 | MC_1 | TACLR;
+//        TA0CTL &= ~TAIFG; //Clear flag at start
+
+
+ //      _low_power_mode_3();
+for(;;){}
         if(ReedOpen)
         {
 
@@ -169,6 +193,12 @@ void reed()
             ProcessRunningNot = 1;  //Process no longer running
             ReedOpen = 1 ; //Cap is back on, reed switch is open
             GPIO_setOutputHighOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn Green LED Off
+
+            //Re-enable button interupts
+            GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
+            GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitization button interrupt
+            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Enable interrupt for sanitization button
+            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);    //Enable interrupt for analysis button
             return;
         }
     }

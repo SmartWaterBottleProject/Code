@@ -1,6 +1,11 @@
 # FIXED
 
 main.obj: ../main.c
+main.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430.h
+main.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr6989.h
+main.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/in430.h
+main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics.h
+main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics_legacy_undefs.h
 main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdint.h
 main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/_ti_config.h
 main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/linkage.h
@@ -18,11 +23,6 @@ main.obj: C:/Users/User/CCS\ SWBP\ v1/Batteryreader.h
 main.obj: C:/Users/User/CCS\ SWBP\ v1/Sanitizer.h
 main.obj: C:/Users/User/CCS\ SWBP\ v1/Analyzer.h
 main.obj: C:/Users/User/CCS\ SWBP\ v1/Def.h
-main.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430.h
-main.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr6989.h
-main.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/in430.h
-main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics.h
-main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics_legacy_undefs.h
 main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdio.h
 main.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdarg.h
 main.obj: C:/Users/User/CCS\ SWBP\ v1/driverlib/MSP430FR5xx_6xx/driverlib.h
@@ -67,6 +67,16 @@ main.obj: C:/Users/User/CCS\ SWBP\ v1/Exporter.h
 
 ../main.c:
 
+C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430.h:
+
+C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr6989.h:
+
+C:/ti/ccs1040/ccs/ccs_base/msp430/include/in430.h:
+
+C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics.h:
+
+C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics_legacy_undefs.h:
+
 C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdint.h:
 
 C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/_ti_config.h:
@@ -100,16 +110,6 @@ C:/Users/User/CCS\ SWBP\ v1/Sanitizer.h:
 C:/Users/User/CCS\ SWBP\ v1/Analyzer.h:
 
 C:/Users/User/CCS\ SWBP\ v1/Def.h:
-
-C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430.h:
-
-C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr6989.h:
-
-C:/ti/ccs1040/ccs/ccs_base/msp430/include/in430.h:
-
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics.h:
-
-C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics_legacy_undefs.h:
 
 C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdio.h:
 

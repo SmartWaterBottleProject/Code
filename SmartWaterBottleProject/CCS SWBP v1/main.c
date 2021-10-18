@@ -184,8 +184,8 @@ void reed()
 //        TA0CTL &= ~TAIFG; //Clear flag at start
 
 
- //      _low_power_mode_3();
-for(;;){}
+      _low_power_mode_4();
+
         if(ReedOpen)
         {
 

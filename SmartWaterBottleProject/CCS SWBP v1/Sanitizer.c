@@ -43,6 +43,7 @@ void Sanitize(bool* safe, bool StartOrStop){ //takes the address of REED to have
 
 
         // Timer_A: ACLK, div by 1, up mode, clear TAR (leaves TAIE=0)
+        TA0CCR0 = 6250-1; // at 625 Hz, set 10 second timer and then check UVC Voltages (10s * 625 Hz =6250)
         TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
 
         // Enable the global interrupt bit,
@@ -50,6 +51,7 @@ void Sanitize(bool* safe, bool StartOrStop){ //takes the address of REED to have
 
         GPIO_setOutputLowOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn on Yellow sanitization LEDs
         GPIO_setOutputHighOnPin(UVCEnablePort, UVCEnablePin); // Enable UVCs
+
 
         return;  //Go back to main code, stay in LPM until sanitizer is done, cancelled, or cap is removed
     }

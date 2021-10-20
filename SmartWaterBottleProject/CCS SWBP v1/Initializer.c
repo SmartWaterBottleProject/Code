@@ -16,6 +16,7 @@
 #include <Initializer.h>
 #include <driverlib.h>
 #include <Def.h>
+#include <stdio.h>
 
 void initialize(void) {
        WDTCTL = WDTPW | WDTHOLD; // Stop the Watchdog timer
@@ -25,7 +26,6 @@ void initialize(void) {
 
        //initialize clock signal of Aux clock to VLO clock (10 kHz) divided by 16 = 625 Hz
        CS_initClockSignal (CS_ACLK, CS_VLOCLK_SELECT, CS_CLOCK_DIVIDER_16);
-       TA0CCR0 = 6249; //should be 112,499 to get 180 seconds at 625 Hz, testing at 10 seconds
 
        //check is Reed switch is pulled low and cap is secured
 
@@ -41,7 +41,7 @@ void initialize(void) {
 
        // turn Indicator LEDs off here, all active low
        GPIO_setOutputHighOnPin(RedLEDNOTPort, RedLEDNOTPin);
-       GPIO_setOutputHighOnPin(GreenLEDNOTPort, GreenLEDNOTPin);
+       GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Green LED indicator during initial power up
        GPIO_setOutputHighOnPin(BlueLEDNOTPort, BlueLEDNOTPin);
        GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin);
 
@@ -101,9 +101,9 @@ void initialize(void) {
 
 
 
-
-
-
+int i=0;
+for(i; i<10000; i++){}
+       GPIO_setOutputHighOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn green LED off after init.
 
        return;
 }

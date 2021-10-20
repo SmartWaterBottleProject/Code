@@ -3,7 +3,7 @@
 //UCF SD
 //8-23-21
 
-//Current implementaton: Blue LED and Yellow LED--Sanitization. Green LED-enterring reed(); (cap removed)
+//Current implementation: Blue LED and Yellow LED--Sanitization. Green LED-enterring reed(); (cap removed)
 
 //**************   I changed the target configuration to 6989 for developing on the launchpad  ************************\\
 
@@ -22,7 +22,7 @@
 
 
 //Could use bool to save program space
-bool StartSanitize = 0, StopSanitize =0, StartAnalyze = 0, ReedOpen = 1; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+bool StartSanitize = 0, StopSanitize =0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0 ; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 //ReedOpen=1, cap is on ReedOpen=0 cap is off
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
 uint8_t BatteryLife = 100;  //uint8_t to save program space
@@ -75,11 +75,13 @@ int main (void)
             //Call Sanitizer.c to start sanitization
             ProcessRunningNot =0;  //Blocking term for process
             Sanitize(&ReedOpen, START);  //Call sanitization function to start sanitizer
+            UVCCheck = 1;  //Signify UVC Check during first 10 seconds
 //            StopSanitize =1;  //Next time this if statement executes, the sanitizer should stop--might not need this
 
             }
 
-            else {
+            else
+            {
                 //Should eventually Blink red LED for low battery
                 GPIO_setOutputLowOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED ON
             }
@@ -160,29 +162,14 @@ void reed()
         GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn on Green
         GPIO_setAsInputPinWithPullDownResistor(ReedSwitchPort, ReedSwitchPin);  //Switch pull up to pull down reed switch (this eliminates current draw)
 
-//        TA0CCR0 = (62500-1);  //2 seconds, at 1Mhz/8
-//        TA0CCTL0 |= CCIE; // Enable Channel 0 CCIE bit
-//        TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
-//        // Timer_A: ACLK, div by 1, up mode, clear TAR (leaves TAIE=0)
-//        TA0CTL = TASSEL_1 | ID_3 | MC_1;
+
 
 //        //Configure Channel 0 for up mode with interrupt
-//            TA0CCR0= (32000-1); // 1 second period @ 32kHz
-//            TA0CCTL0 |= CCIE;  //enable Channel 0 CCIE Bit
-//            TA0CCTL0 &= ~CCIFG; //clear channel 0 CCIFG Bit
-//
-//            //Configure Timer_A: ACLK, Divide by 1, up Mode, clear TAR, enable interrupt for rollback event (leaves TAIE=0)
-//            TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
-//            TA0CTL &= ~TAIFG; //Clear flag at start
-
-//        //Configure Channel 0 for up mode with interrupt
-//       TA0CCR0= (62500-1); // 1 second period @ 32kHz
+        TA0CCR0= (625-1); // 1 second period @ 39kHz
         TA0CCTL0 |= CCIE;  //enable Channel 0 CCIE Bit
         TA0CCTL0 &= ~CCIFG; //clear channel 0 CCIFG Bit
-//        //Configure Timer_A: ACLK, Divide by 1, up Mode, clear TAR, enable interrupt for rollback event (leaves TAIE=0)
-        TA0CTL = TASSEL_2 | ID_3 | MC_1 | TACLR;
-//        TA0CTL &= ~TAIFG; //Clear flag at start
-
+//        //Configure Timer_A: ACLK @ 625 Hz, Divide by 1, up Mode, clear TAR, enable interrupt for rollback event every 1s (leaves TAIE=0)
+        TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
 
       _low_power_mode_4();
 
@@ -199,6 +186,7 @@ void reed()
             GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitization button interrupt
             GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Enable interrupt for sanitization button
             GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);    //Enable interrupt for analysis button
+            GPIO_setOutputHighOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn green LED OFF
             return;
         }
     }
@@ -309,7 +297,7 @@ __interrupt void T0A0_ISR() {
            }
     }
 
-    else
+    else if (!UVCCheck)
     {
         //    sanitize = 0; //end sanitize function
             GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
@@ -327,9 +315,25 @@ __interrupt void T0A0_ISR() {
 
     }
 
+    else
+    {
+        //UVCCheck
+        GPIO_setOutputHighOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin); //Enable photo resistor
+        //Read ADC Voltages for photoresistor
+        //Act upon results of read adc voltage
+        //Set timer for 170 additional seconds
+        //If no error continue remaing 2:50s of sanitization
+        TA0CCR0 = 106249; // at 625 Hz, set 170 second timer and then check UVC Voltages (170s * 625 Hz =106250)
+        TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
+        UVCCheck = 0; //UVC Check is finished
+        GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);
+    }
+
 
     // Hardware clears the flag, CCIFG in TA0CCTL0
 }
+
+
 
 
 

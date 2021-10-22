@@ -9,6 +9,7 @@ CMD_SRCS += \
 ../lnk_msp430fr6989.cmd 
 
 C_SRCS += \
+../ADC.c \
 ../Analyzer.c \
 ../Batteryreader.c \
 ../Exporter.c \
@@ -19,6 +20,7 @@ C_SRCS += \
 ../main.c 
 
 C_DEPS += \
+./ADC.d \
 ./Analyzer.d \
 ./Batteryreader.d \
 ./Exporter.d \
@@ -29,6 +31,7 @@ C_DEPS += \
 ./main.d 
 
 OBJS += \
+./ADC.obj \
 ./Analyzer.obj \
 ./Batteryreader.obj \
 ./Exporter.obj \
@@ -39,6 +42,7 @@ OBJS += \
 ./main.obj 
 
 OBJS__QUOTED += \
+"ADC.obj" \
 "Analyzer.obj" \
 "Batteryreader.obj" \
 "Exporter.obj" \
@@ -49,6 +53,7 @@ OBJS__QUOTED += \
 "main.obj" 
 
 C_DEPS__QUOTED += \
+"ADC.d" \
 "Analyzer.d" \
 "Batteryreader.d" \
 "Exporter.d" \
@@ -59,6 +64,7 @@ C_DEPS__QUOTED += \
 "main.d" 
 
 C_SRCS__QUOTED += \
+"../ADC.c" \
 "../Analyzer.c" \
 "../Batteryreader.c" \
 "../Exporter.c" \

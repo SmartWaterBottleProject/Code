@@ -86,7 +86,7 @@ int main (void)
                 GPIO_setOutputLowOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED ON
             }
 
-            StartSanitize = 0;  //Clear sanitization mode, not enough battery life to perform
+//           StartSanitize = 0;  //Clear sanitization mode, not enough battery life to perform
 
 //            StartSanitize = 0; // reset variable for calling sanitizer, --I dont know if we want to do this yet RKK
 
@@ -115,7 +115,7 @@ int main (void)
                // Analyze();
 
             }
-            StartAnalyze = 0; //reset variable for calling analyzer
+//            StartAnalyze = 0; //reset variable for calling analyzer
 
             GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
             GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
@@ -225,6 +225,10 @@ __interrupt void P2_ISR()
 #pragma vector = PORT1_VECTOR  //Link the ISR to the Vector
 __interrupt void P1_ISR()
 {
+    //Deactivate both buttons
+    GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);
+    GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
+
    if(P1IFG & SanitizeButtonPin) // Detect button 1
    {
        //Check if sanitizer is already running, when button is held for three seconds during sanitization, UVCs turn off
@@ -240,9 +244,6 @@ __interrupt void P1_ISR()
        LPM4_EXIT;
 
 
-       //Deactivate both buttons
-       GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);
-       GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
 
 
        //P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs, haven't messed with this yet, not
@@ -309,7 +310,8 @@ __interrupt void T0A0_ISR() {
 
 
             ProcessRunningNot = 1; //Process is no longer running
-
+            GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
+            GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
             GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
             GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
 
@@ -319,14 +321,37 @@ __interrupt void T0A0_ISR() {
     {
         //UVCCheck
         GPIO_setOutputHighOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin); //Enable photo resistor
-        //Read ADC Voltages for photoresistor
-        //Act upon results of read adc voltage
-        //Set timer for 170 additional seconds
-        //If no error continue remaing 2:50s of sanitization
-        TA0CCR0 = 106249; // at 625 Hz, set 170 second timer and then check UVC Voltages (170s * 625 Hz =106250)
-        TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
-        UVCCheck = 0; //UVC Check is finished
-        GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);
+        Initialize_ADC_Photoresistor();  //Initialize the ADC
+        ADC12CTL0 |= ADC12SC; //set, start conversion for adc
+        //wait for flag to clear
+        while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field
+        uint16_t PhotoresistorVoltage = ADC12MEM0;
+        ADC12CTL0 &= ~ADC12ON;  //Turn ADC off? Maybe leaving it on causes, current draw.
+        if( PhotoresistorVoltage <= 2500)
+        {
+            GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);  //Disable UVCs
+            GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn off yellow indicator LED
+            TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
+            TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+            ProcessRunningNot = 1; //Process is no longer running
+            UVCCheck =0;  //UVC Check is done
+            GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
+            GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitization button interrupt
+            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
+            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
+        }
+
+        else
+        {
+            //Read ADC Voltages for photoresistor
+            //Act upon results of read adc voltage
+            //Set timer for 170 additional seconds
+            //If no error continue remaing 2:50s of sanitization
+            TA0CCR0 = 106249; // at 625 Hz, set 170 second timer and then check UVC Voltages (170s * 625 Hz =106250)
+            TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
+            UVCCheck = 0; //UVC Check is finished
+            GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);
+        }
     }
 
 

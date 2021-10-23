@@ -86,7 +86,7 @@ int main (void)
                 GPIO_setOutputLowOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED ON
             }
 
-//           StartSanitize = 0;  //Clear sanitization mode, not enough battery life to perform
+           StartSanitize = 0;  //Clear sanitization mode, not enough battery life to perform
 
 //            StartSanitize = 0; // reset variable for calling sanitizer, --I dont know if we want to do this yet RKK
 

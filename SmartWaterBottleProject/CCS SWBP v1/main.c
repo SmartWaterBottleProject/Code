@@ -23,6 +23,7 @@
 
 //Could use bool to save program space
 bool StartSanitize = 0, StopSanitize =0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0 ; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+bool SecondUVCTimer = 0;  //When variable = 1, timer is on second iteration of sanitization. Done to account for 16-bit TA0CCR0 Overflow issues
 //ReedOpen=1, cap is on ReedOpen=0 cap is off
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
 uint8_t BatteryLife = 100;  //uint8_t to save program space
@@ -300,20 +301,33 @@ __interrupt void T0A0_ISR() {
 
     else if (!UVCCheck)
     {
-        //    sanitize = 0; //end sanitize function
-            GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
-            GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
-        //    GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //This is only here to make sure this vector triggers in main and terminates UVCs
-            //Clear Timer A0 flag and disable interrupt
-            TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
+
+        if(SecondUVCTimer)
+        {
             TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+            TA0CCR0 = 40625-1; // at 625 Hz, set 65 second timer (170s * 625 Hz =106250)
+            TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
+            SecondUVCTimer = 0;  //Second UVC Timer is done
 
+        }
 
-            ProcessRunningNot = 1; //Process is no longer running
-            GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
-            GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
-            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
-            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
+        else
+        {
+            //    sanitize = 0; //end sanitize function
+                        GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
+                        GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
+                        GPIO_setOutputHighOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn green LED off
+                    //    GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //This is only here to make sure this vector triggers in main and terminates UVCs
+                        //Clear Timer A0 flag and disable interrupt
+                        TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
+                        TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+                        ProcessRunningNot = 1; //Process is no longer running
+                        GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
+                        GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
+                        GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
+                        GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
+
+        }
 
     }
 
@@ -327,7 +341,8 @@ __interrupt void T0A0_ISR() {
         while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field
         uint16_t PhotoresistorVoltage = ADC12MEM0;
         ADC12CTL0 &= ~ADC12ON;  //Turn ADC off? Maybe leaving it on causes, current draw.
-        if( PhotoresistorVoltage <= 2500)
+
+        if( PhotoresistorVoltage <= 1240)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
         {
             GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);  //Disable UVCs
             GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn off yellow indicator LED
@@ -347,8 +362,11 @@ __interrupt void T0A0_ISR() {
             //Act upon results of read adc voltage
             //Set timer for 170 additional seconds
             //If no error continue remaing 2:50s of sanitization
-            TA0CCR0 = 106249; // at 625 Hz, set 170 second timer and then check UVC Voltages (170s * 625 Hz =106250)
+            TA0CCTL0 |= CCIE; // Enable Channel 0 CCIE bit
+            TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+            TA0CCR0 = 52500-1; // at 625 Hz, set 104 second timer (104s * 625 Hz =65536) Changed to 52500 to account for extra 20 second timing
             TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
+            SecondUVCTimer = 1;  //Start second iteration of UVC Timer
             UVCCheck = 0; //UVC Check is finished
             GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);
         }

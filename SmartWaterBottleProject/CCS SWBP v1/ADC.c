@@ -7,6 +7,13 @@
 #include <msp430.h>
 
 //Using photodiode analog input on Launchpad for time being
+
+//Uses 0V and +VCC for ADC references
+
+//Using 12 bits of resolution for ADC
+
+
+
 // P9.1/A9
 void Initialize_ADC_Photoresistor() //function to init. adc
 {
@@ -17,9 +24,9 @@ void Initialize_ADC_Photoresistor() //function to init. adc
   ADC12CTL0 |= ADC12ON; // Turn on the ADC module
   ADC12CTL0 &= ~ADC12ENC;  // Turn off ENC (Enable Conversion) bit while modifying the configuration
 
-//*************** ADC12CTL0 ***************/ //set number of cycles (fast mode)
+//*************** ADC12CTL0 ***************/ //set number of cycles
     // Set ADC12SHT0 (select the number of cycles that you determined)
-    ADC12CTL0 |= ADC12SHT0_3;  //32 cycles selected for bit field bits 8-11
+    ADC12CTL0 |= ADC12SHT0_10;  //Allow 512 cycles for capacitors to charge
 
     //*************** ADC12CTL1 ***************
     // Set ADC12SHS (select ADC12SC bit as the trigger)
@@ -28,7 +35,8 @@ void Initialize_ADC_Photoresistor() //function to init. adc
     // Set ADC12SSEL (select MODOSC)
 
     //ADC12SHS should be defaulted to use ADC, but just in case
-    ADC12CTL1 |= ADC12SHS_0|ADC12SHP|ADC12DIV_0|ADC12SSEL_0;
+    //Use larger divider to ensure that capacitors for ADC comparator charge up in time
+    ADC12CTL1 |= ADC12SHS_0|ADC12SHP|ADC12DIV_7|ADC12SSEL_0;
 //note: the last three value should all be defaults, but they are stil set just in case
 
 

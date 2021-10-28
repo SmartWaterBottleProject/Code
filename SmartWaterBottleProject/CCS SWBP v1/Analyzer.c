@@ -12,7 +12,7 @@
 
 //Min pulse width for stepper is 1us
 
-//What should stepper motor initially do before beginning zero-ing run?
+//Something might be wrong with continue and break in configuration loop
 
 //Treat voltage as adc integer or convert back to voltage
 
@@ -33,6 +33,9 @@ uint16_t * Analyze(void)
 
     uint16_t MAX = ZERO;      //Measured Max. value from ADC read
     uint16_t Voltage;         //Stores voltage from ADC
+    uint16_t BASELINE=0;
+    uint16_t i=0;  //For loop counter that runs WIDTH times during analysis
+    uint16_t j=0;  //For loop counter
     bool PassedPeak = 0;      //Have we passed the peak, 0-no, 1-yes
 
 
@@ -88,8 +91,65 @@ uint16_t * Analyze(void)
                }
 
                //Dynamic memory allocation for SAMPLES, here
+              uint16_t * SAMPLES;
+              SAMPLES = (uint16_t *)calloc(POSITION, sizeof(uint16_t)); //Dynamically allocate memory for samples array, size of position
+              Step(WIDTH*2);  //Step down by Width*2 Units
 
-           }
+              //Initialize Baseline variables
+              uint16_t BaselineMax = 0;
+              uint16_t BaselineMin = 4096-1;  //Just make max value for 12-bit ADC result
+              uint16_t Baseline;  //Variable used to store average entry weight
+              Baseline = Voltage/WIDTH;  //Gets average entry weight
+
+              for(i=0; i<WIDTH; i++)  //For loop that runs Width times
+              {
+                  Position += Step(ONE);
+                  Voltage = GetVoltage(); //Get Voltage measurement from Laser diode
+
+                  if(Voltage > BaselineMax)
+                  {
+                      BaselineMax = Voltage;
+                  }
+                  if(Voltage < BaselineMin)
+                  {
+                      BaselineMin = Voltage;
+                  }
+
+              }
+
+              if((BaselineMax - BaselineMin) > Baseline)  //Light is incident at some point
+              {
+                  free(SAMPLES);  //Free dynamically allocated memory used for samples
+                  Step(2*WIDTH);  //Step down by 2*WIDTH times
+                  continue;  //Jump back to beginning and start analysis over from new position
+
+              }
+
+              break;  //Exit the configuration while loop
+
+              //Now start analyzing
+              for(i=0; i< WIDTH; i++)  //For loop that iterates from 0 to WIDTH using i
+              {
+                  Voltage = GetVoltage();
+                  SAMPLES[i] = Voltage - (WIDTH-1-i)*Baseline;
+
+                  for(j=i-1; j>=0; j--)
+                  {
+                      SAMPLES[i] = SAMPLES [i] - SAMPLES[j];
+                  }
+              }
+
+                  for(i=WIDTH; i<= POSITION; i++)  //For loop that iterates from WIDTH to POSITION using i
+                  {
+                      Voltage = GetVoltage();
+                      SAMPLES[i] = Voltage;
+
+                      for(j=i-1; j > i-WIDTH+1; j--)
+                      {
+                          SAMPLES[i] = SAMPLES[i] - SAMPLES[j];
+                      }
+                  }
+              }
 
            return;
 }
@@ -114,10 +174,12 @@ uint16_t * Analyze(void)
     //    P1SEL0 |= LDHighPowerEnable;
 
 
-int Step(int MoveBy){
+int Step(int MoveBy)
+{
 	//Move the stepper motor up or down the MoveBy number of times.
 	return MoveBy;
 }
+
 //Get the voltage from the ADC, returns 16 bit integer.
 uint16_t GetVoltage()
 {

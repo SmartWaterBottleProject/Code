@@ -10,4 +10,6 @@
 
 void Initialize_ADC_Photoresistor();
 
+void Initialize_ADC_Photodiode();
+
 #endif /* ADC_H_ */

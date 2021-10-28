@@ -75,6 +75,12 @@ void initialize(void) {
        GPIO_setOutputLowOnPin(MotorEnablePort, MotorEnablePin);         //Disable motor by default
        GPIO_setAsOutputPin(StepperSleepPort, StepperSleepPin);          //Configure stepper sleep as output
        GPIO_setOutputLowOnPin(StepperSleepPort, StepperSleepPin);       //By default, stepper motor is asleep, approx. 1uA current
+       GPIO_setAsOutputPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Configure LD Low Power mode enable pin as output
+       GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);   //Configure as low by default, since active high
+       //Also enable high power branch, to access additional power for Laser Diode
+       GPIO_setAsOutputPin(LDHighPowerEnablePort, LDHighPowerEnablePin);    //Configure LD High Power mode enable pin as output
+       GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin); //Configure as low by default, since active high
+
 
 //--------------Sanitization------------------------------------------------------------------------------------------------------//
 

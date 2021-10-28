@@ -88,23 +88,9 @@ int main (void)
             }
 
            StartSanitize = 0;  //Clear sanitization mode, not enough battery life to perform
-
-//            StartSanitize = 0; // reset variable for calling sanitizer, --I dont know if we want to do this yet RKK
-
-//            ReedOpen=1; //for testing Reed interrupt with analyzer button
-//
-//            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
-//            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
         }
 
-//RKK Dont think we need this actually
-//        if(StopSanitize)  //Terminate the UVC LED and process
-//        {
-//            Sanitize(&ReedOpen, STOP);  //Call sanitize.c to stop sanitizer
-//            StopSanitize=0;  //Sanitization is finished
-//        }
 
-//Remove "Analyze()" in line below => Not sure why, that's just calling the analyze function -Dean
         if(StartAnalyze && ProcessRunningNot) //checks if analyze button was pressed, and no other process is running
         {
             //Call Batteryread
@@ -112,14 +98,21 @@ int main (void)
 
             if(BatteryLife >= 20) //Ensure there is enough battery life, prior to starting sanitization
             {
+                ProcessRunningNot = 0;
+                Analyze(); //Call the analyzer function
                 //Call Analyzer.c
                // Analyze();
 
             }
-//            StartAnalyze = 0; //reset variable for calling analyzer
 
-            GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
-            GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
+            else
+                        {
+                            //Should eventually Blink red LED for low battery
+                            GPIO_setOutputLowOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED ON
+                        }
+
+
+            StartAnalyze = 0; //reset variable for calling analyzer
         }
 
         //enable LPM again just in case

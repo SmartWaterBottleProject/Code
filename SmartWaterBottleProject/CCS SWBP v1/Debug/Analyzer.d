@@ -59,6 +59,8 @@ Analyzer.obj: C:/Users/User/CCS\ SWBP\ v1/driverlib/MSP430FR5xx_6xx/hspll.h
 Analyzer.obj: C:/Users/User/CCS\ SWBP\ v1/driverlib/MSP430FR5xx_6xx/eusci_b_spi.h
 Analyzer.obj: C:/Users/User/CCS\ SWBP\ v1/driverlib/MSP430FR5xx_6xx/sdhs.h
 Analyzer.obj: C:/Users/User/CCS\ SWBP\ v1/driverlib/MSP430FR5xx_6xx/crc.h
+Analyzer.obj: C:/Users/User/CCS\ SWBP\ v1/ADC.h
+Analyzer.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdlib.h
 
 ../Analyzer.c:
 
@@ -177,4 +179,8 @@ C:/Users/User/CCS\ SWBP\ v1/driverlib/MSP430FR5xx_6xx/eusci_b_spi.h:
 C:/Users/User/CCS\ SWBP\ v1/driverlib/MSP430FR5xx_6xx/sdhs.h:
 
 C:/Users/User/CCS\ SWBP\ v1/driverlib/MSP430FR5xx_6xx/crc.h:
+
+C:/Users/User/CCS\ SWBP\ v1/ADC.h:
+
+C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/stdlib.h:
 

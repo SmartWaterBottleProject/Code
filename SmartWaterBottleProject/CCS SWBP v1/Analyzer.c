@@ -6,95 +6,138 @@
 // */
 #include <Analyzer.h>
 #include <Def.h>
-//
-//// Configure PWM Move motor
-////Enable and disable LD
-////Move Motor...
-//
-////Once finished call exporter to send data to bluetooth module
-//
-////Min pulse width for stepper is 1us
-//
-//
-//#define ZERO 65535   //Value below expected peak ADC reading in LPM
-//#define ONE 1        //Allows for changing polarity of the motor
-//#define POSTZERO 80  //How many positions from zero the stepper should move after zero-ing run
-//
-//int Step(int);  //Steps the stepper motor over the input number of times
-//
+#include <stdio.h>
+#include <ADC.h>
+#include <stdlib.h>
+
+//Min pulse width for stepper is 1us
+
+//What should stepper motor initially do before beginning zero-ing run?
+
+//Treat voltage as adc integer or convert back to voltage
+
+//Could eventually take multiple channel measurements of photodiode voltage
+
+#define ZERO 0   //Value below expected peak ADC reading in LPM was previously 65535
+#define ONE 1        //Allows for changing polarity of the motor
+#define POSTZERO 80  //How many positions from zero the stepper should move after zero-ing run
+#define BASELINE 0  //What can be considered a zero-voltage, experimentally
+#define WIDTH 0  //Width of photodiode's element divided by step length of stepper motor
+
+int Step(int);  //Steps the stepper motor over the input number of times
+
+uint16_t GetVoltage(void);  //Function to take ADC measurement
+
 uint16_t * Analyze(void)
 {
-//    uint16_t MAX = ZERO;      //Measured Max. value from ADC read
-//    uint16_t Voltage;         //Stores voltage from ADC
-//    bool PassedPeak = 0;      //Have we passed the peak, 0-no, 1-yes
-//
-////    //Configure P2.4 as TB0.3 for PWM
-////    P1DIR |= LDLowPowerEnablePin;
-////    P1SEL1 |= LDLowPowerEnable;
-////    P1SEL0 |= LDLowPowerEnable;
-//
-////********************Zeroing Run***********************************************************//
-//    //Finding Peak of low power mode
-//
+
+    uint16_t MAX = ZERO;      //Measured Max. value from ADC read
+    uint16_t Voltage;         //Stores voltage from ADC
+    bool PassedPeak = 0;      //Have we passed the peak, 0-no, 1-yes
+
+
+//********************Zeroing Run***********************************************************//
+
+    //Turn on laser at low power setting
+    GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Turn on Laser Diode
+    Voltage = GetVoltage();  //Take ADC Measurement
+
+    if(Voltage >= 0.5*MAX )
+    {
+     Step(POSTZERO);  //Stepdown by postzero steps
+    }
+
+    while(1)
+    {
+        Step(ONE);  //Step the stepper motor up one step
+        Voltage = GetVoltage(); //Get Voltage measurement from Laser diode
+        //Compare photodiode VOLT to MAX
+               if(MAX <= Voltage)
+               {
+                   MAX = Voltage;
+                   PassedPeak =1;
+               }
+               if(MAX > Voltage && PassedPeak)  //We have passed the maximum point (the zero)
+               {
+                   break;
+               }
+           }
+
+           int Position = Step(POSTZERO);  //Move the stepper POSTZERO positions and record distance from Zero
+
+
+
+//********************Analysis Run***********************************************************//
+
+           GPIO_setOutputHighOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);  //Add additional power for laser diode
+
+           for(;;)
+           {
+               for(;;)
+               {
+                 Voltage = GetVoltage();  //Take ADC measurement
+                 if (Voltage > BASELINE)
+                 {
+                     Position += Step(-ONE);
+                 }
+
+                 if(Voltage<= BASELINE)
+                 {
+                     break;
+                 }
+               }
+
+               //Dynamic memory allocation for SAMPLES, here
+
+           }
+
+           return;
+}
+
+
+
+
+
 //    TB0CCR0=20000-1; //@1 Mhz, 20 millisecond
 //    TB0CTL= TASSEL_2 | ID_0 | MC_1 | TBCLR;
 //    TB0CCTL3 |= OUTMOD_7;     //Channel Reset/Set   ---these two lines might be wrong
 //    TB0CCR3 = Start;  //Start PWM?
-//    //Get VOLT--ADC frequency same as laser 20ms--baseline
-//    if(Voltage > (.5*MAX))
-//    {
-//        //Step down by postzero
-//
-//    }
-//
-//    while()  //This while loop may need modification
-//    {
-//        //Step the stepper motor up
-//        //Get VOLT
-//        //Compare photodiode VOLT to MAX
-//        if(MAX < Voltage)
-//        {
-//
-//        }
-//        if(PassedPeak)  //We have passed the maximum point (the zero)
-//        {
-//            break;
-//        }
-//    }
-//
-//    int Position = Step(POSTZERO);  //Move the stepper POSTZERO positins and record distance from Zero
-//
-////********************Analysis Run***********************************************************//
-//        //Finding Peak of low power mode
-//
-//    //    //Configure both Low power and High power LD at same time
-//    //    P1DIR |= LDHighPowerEnablePin;
-//    //    P1SEL1 |= LDHighPowerEnable;
-//    //    P1SEL0 |= LDHighPowerEnable;
-//
-//    //Start PWM right away for both
-//
-//    while()
-//    {
-//
-//    }
-//
-//
-    return;
+
+
+
+//********************Analysis Run***********************************************************//
+        //Finding Peak of low power mode
+
+    //    //Configure both Low power and High power LD at same time
+    //    P1DIR |= LDHighPowerEnablePin;
+    //    P1SEL1 |= LDHighPowerEnable;
+    //    P1SEL0 |= LDHighPowerEnable;
+
+
+int Step(int MoveBy){
+	//Move the stepper motor up or down the MoveBy number of times.
+	return MoveBy;
 }
-//
-////int Step(int MoveBy){
-////	//Move the stepper motor up or down the MoveBy number of times.
-////	return MoveBy;
-////}
-////
-////int GetVolt(){
-////	//Get the voltage from the ADC
-////	return VOLT;
-////}
-//
-//
-//
+//Get the voltage from the ADC, returns 16 bit integer.
+uint16_t GetVoltage()
+{
+    Initialize_ADC_Photodiode();  //Initialize the ADC
+    ADC12CTL0 |= ADC12SC; //set, start conversion for adc
+    //wait for flag to clear
+    while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field
+    uint16_t PhotodiodeVoltage = ADC12MEM0;
+    ADC12CTL0 &= ~ADC12ON;  //Turn ADC off? Maybe leaving it on causes, current draw.
+
+	return PhotodiodeVoltage;
+}
+
+
+
+
+
+
+
+
 ////Analyzer Program Pseudocode
 //
 ////Define a constant named ZERO to represent a value just below the expected zero'd value (determined experimentally)
@@ -159,16 +202,7 @@ uint16_t * Analyze(void)
 //					//for(j=i-1;j>i-WIDTH+1;j--)
 //						//Samples[i] = Samples[i] - Samples[j];
 //				//--Now we have a vector of samples
-//
-//
-//
-//
-//
-//
-////Servo may be utilized later
-//
-//
-//
-//
-//
-//
+
+
+//Once finished call exporter to send data via bluetooth
+//Servo may be utilized later

@@ -283,6 +283,7 @@ __interrupt void T0A0_ISR() {
            if(GPIO_getInputPinValue(ReedSwitchPort, ReedSwitchPin) == 1)     //Check to see if cap was placed back on
            {
               ReedOpen = 1; //Cap is no longer off, switch is open again
+              TA0CTL = MC_0;  //Turn timer off
               LPM4_EXIT;  //Exit low power mode
            }
            else
@@ -314,6 +315,7 @@ __interrupt void T0A0_ISR() {
                         //Clear Timer A0 flag and disable interrupt
                         TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
                         TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+                        TA0CTL = MC_0;  //Turn timer off
                         ProcessRunningNot = 1; //Process is no longer running
                         GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
                         GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);

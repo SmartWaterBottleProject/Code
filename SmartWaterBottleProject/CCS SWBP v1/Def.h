@@ -104,11 +104,14 @@
 #define StepperDirectionPort      GPIO_PORT_P4  //Change stepper direction using P4.3
 #define StepperDirectionPin       GPIO_PIN3
 
-#define StepperSleepPort          GPIO_PORT_P2  //Control stepper sleep using P2.6
-#define StepperSleepPin           GPIO_PIN6
+#define StepperSleepNotPort          GPIO_PORT_P2  //Control stepper sleep using P2.6
+#define StepperSleepNotPin           GPIO_PIN6
 
 #define ReedSwitchPort            GPIO_PORT_P2  //Reed switch at P2.7
 #define ReedSwitchPin             GPIO_PIN7
+
+#define MotorStepPort             GPIO_PORT_P1  //Motor step pin (toggle) at P1.6
+#define MotorStepPin              GPIO_PIN6
 
 
 

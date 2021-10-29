@@ -117,12 +117,4 @@ void Initialize_ADC_Photodiode() //function to init. adc
 
 
 
-//    // X-axis: A10/P9.2, for A10 (P9DIR=x, P9SEL1=1, P9SEL0=1)
-//    P9SEL1 |= BIT2;
-//    P9SEL0 |= BIT2;
-////Y-axis: A4/P8.7, for A4(P8DIR=x P8SEL1/0=1)
-//     P8SEL0 |= BIT7;
-//     P8SEL1 |= BIT7;
-
-
 

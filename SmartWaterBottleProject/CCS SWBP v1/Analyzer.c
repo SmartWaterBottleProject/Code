@@ -28,17 +28,26 @@ uint16_t * Analyze(void)
 {
 
     uint16_t MAX = ZERO;      //Measured Max. value from ADC read
-    uint16_t Voltage;         //Stores voltage from ADC
+    uint16_t Voltage=0;         //Stores voltage from ADC
     uint16_t i=0;  //For loop counter that runs WIDTH times during analysis
     uint16_t j=0;  //For loop counter
     bool PassedPeak = 0;      //Have we passed the peak, 0-no, 1-yes
 
+    GPIO_setOutputHighOnPin(StepperSleepNotPort, StepperSleepNotPin);  //Wake up motor
+
 
 //********************Zeroing Run***********************************************************//
 
+
+
+
+
     //Turn on laser at low power setting
     GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Turn on Laser Diode
+
     Voltage = GetVoltage();  //Take ADC Measurement
+    int x=0;
+    for(x; x<10000; x++){}
 
     if(Voltage >= 0.5*MAX )
     {
@@ -146,6 +155,8 @@ uint16_t * Analyze(void)
                   }
               }
 
+           GPIO_setOutputLowOnPin(StepperSleepNotPort, StepperSleepNotPin);  //Put motor back to sleep
+
            return;
 }
 
@@ -171,6 +182,34 @@ uint16_t * Analyze(void)
 
 int Step(int MoveBy)
 {
+    int i=0;  //Counter for for loop
+    //Check direction
+    if(MoveBy >= 0 )  //If MoveBy is positive
+    {
+        GPIO_setOutputHighOnPin(StepperDirectionPort, StepperDirectionPin);  //Set as positive direction
+    }
+
+    if(MoveBy < 0)  //If Moveby is negative
+    {
+        GPIO_setOutputLowOnPin(StepperDirectionPort, StepperDirectionPin);  //Set as negative direction
+        MoveBy = -MoveBy;  //Make positive for count
+    }
+
+    //Initialize timer to 1 kHz
+    // Timer_A: SMCLK, div by 1, up mode, clear TAR (leaves TAIE=0)
+    TA0CCR0 = 500-1; // at 1 MHz, set .001 second timer (1kHz), for each rising edge at 1kHz frequency
+    TA0CTL = TASSEL_2 | ID_0 | MC_1 | TACLR;
+    TA0CTL &= ~TAIFG;  //Clear flag at start
+
+    for(i=0; i<2*MoveBy; i++)
+    {
+        while((TA0CTL & TAIFG) == 0){}
+        TA0CTL &=~TAIFG;
+        GPIO_toggleOutputOnPin(MotorStepPort, MotorStepPin);  //Toggle pin
+    }
+
+    TA0CTL = MC_0;  //Turn timer off
+
 	//Move the stepper motor up or down the MoveBy number of times.
 	return MoveBy;
 }

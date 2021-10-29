@@ -71,15 +71,19 @@ void initialize(void) {
 
 //--------------Water Quality Analysis------------------------------------------------------------------------------------------------------//
        GPIO_setAsOutputPin(StepperDirectionPort, StepperDirectionPin);  //Configure stepper direction as output
+       GPIO_setOutputHighOnPin(StepperDirectionPort, StepperDirectionPin);  //Assert + or high by default
        GPIO_setAsOutputPin(MotorEnablePort, MotorEnablePin);            //Configure Motor Enable as output
        GPIO_setOutputLowOnPin(MotorEnablePort, MotorEnablePin);         //Disable motor by default
-       GPIO_setAsOutputPin(StepperSleepPort, StepperSleepPin);          //Configure stepper sleep as output
-       GPIO_setOutputLowOnPin(StepperSleepPort, StepperSleepPin);       //By default, stepper motor is asleep, approx. 1uA current
+       GPIO_setAsOutputPin(StepperSleepNotPort, StepperSleepNotPin);          //Configure stepper sleep as output
+       GPIO_setOutputLowOnPin(StepperSleepNotPort, StepperSleepNotPin);       //By default, stepper motor is asleep, approx. 1uA current
        GPIO_setAsOutputPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Configure LD Low Power mode enable pin as output
        GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);   //Configure as low by default, since active high
        //Also enable high power branch, to access additional power for Laser Diode
        GPIO_setAsOutputPin(LDHighPowerEnablePort, LDHighPowerEnablePin);    //Configure LD High Power mode enable pin as output
        GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin); //Configure as low by default, since active high
+       GPIO_setAsOutputPin(MotorStepPort, MotorStepPin);  //Configure Motorstep as output
+       GPIO_setOutputLowOnPin(MotorStepPort, MotorStepPin);  //Set low by default
+
 
 
 //--------------Sanitization------------------------------------------------------------------------------------------------------//

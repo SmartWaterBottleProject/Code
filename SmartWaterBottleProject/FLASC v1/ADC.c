@@ -18,15 +18,18 @@
 
 
 // P9.1/A9
+//Use 2.5V reference for Photoresistor ADC, because of R12 and R22 voltage dividing 3V->2.5V
 void Initialize_ADC_Photoresistor() //function to init. adc
 {
 
-    GPIO_setOutputHighOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin);  //Enable photoresistor
+    //    GPIO_setOutputHighOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin);  //Enable photoresistor
 // Divert the pins to analog functionality
-  P9SEL1 |= BIT1;
-  P9SEL0 |= BIT1;
+  P9SEL1 |= BIT0;
+  P9SEL0 |= BIT0;
 
-  ADC12CTL0 |= ADC12ON; // Turn on the ADC module
+
+
+   ADC12CTL0 |= ADC12ON; // Turn on the ADC module
   ADC12CTL0 &= ~ADC12ENC;  // Turn off ENC (Enable Conversion) bit while modifying the configuration
 
 //*************** ADC12CTL0 ***************/ //set number of cycles
@@ -58,14 +61,23 @@ void Initialize_ADC_Photoresistor() //function to init. adc
 
     //*************** ADC12MCTL0 ***************
 
-    // Set ADC12VRSEL (select VR+=AVCC, VR-=AVSS)
+    // Set ADC12VRSEL (select VR+=VREF, VR-=AVSS)
     //should be default
    // ADC12VRSEL=0;
-    ADC12MCTL0 |= ADC12INCH_9| ADC12VRSEL_0;
+    ADC12MCTL0 |= ADC12INCH_8| ADC12VRSEL_1;
     // Set ADC12INCH (select channel A10)
 
     // Turn on ENC (Enable Conversion) bit at the end of the configuration
+    // Configure internal reference
+    while(REFCTL0 & REFGENBUSY);              // If ref generator busy, WAIT
+    REFCTL0 |= REFVSEL_2|REFON;               // Select internal ref = 2.5V
+                                              // Internal Reference ON
+    while(!(REFCTL0 & REFGENRDY));            // Wait for reference generator
+                                              // to settle
+
     ADC12CTL0 |= ADC12ENC;
+
+
     return;
     }
 

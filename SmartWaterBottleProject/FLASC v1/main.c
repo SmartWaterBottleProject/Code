@@ -153,7 +153,7 @@ void reed()
         GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Disable interrupt for sanitization button
         GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);    //Disable interrupt for analysis button
 
-        GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn on Green
+        GPIO_setOutputLowOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn on Red
         GPIO_setAsInputPinWithPullDownResistor(ReedSwitchPort, ReedSwitchPin);  //Switch pull up to pull down reed switch (this eliminates current draw)
 
 
@@ -180,7 +180,7 @@ void reed()
             GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitization button interrupt
             GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Enable interrupt for sanitization button
             GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);    //Enable interrupt for analysis button
-            GPIO_setOutputHighOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Turn green LED OFF
+            GPIO_setOutputHighOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn red LED OFF
             return;
         }
     }
@@ -284,12 +284,13 @@ __interrupt void T0A0_ISR() {
            {
               ReedOpen = 1; //Cap is no longer off, switch is open again
               TA0CTL = MC_0;  //Turn timer off
+              GPIO_setOutputHighOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn RED LED off
               LPM4_EXIT;  //Exit low power mode
            }
            else
            {
                GPIO_setAsInputPinWithPullDownResistor(ReedSwitchPort, ReedSwitchPin);//Reconfigure reed switch pin as pulled low input (eliminate current draw)
-               GPIO_toggleOutputOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Toggle Green LED every second
+               GPIO_toggleOutputOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Toggle Green LED every second
            }
     }
 
@@ -336,9 +337,10 @@ __interrupt void T0A0_ISR() {
         while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field
         uint16_t PhotoresistorVoltage = ADC12MEM0;
         ADC12CTL0 &= ~ADC12ON;  //Turn ADC off? Maybe leaving it on causes, current draw.
+        REFCTL0 &= ~REFON;  //Disable internal reference for ADC
         GPIO_setOutputLowOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin);  //Disable photoresistor
 
-        if( PhotoresistorVoltage <= 1240)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
+        if( PhotoresistorVoltage <= 1136)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
         {
             GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);  //Disable UVCs
             GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn off yellow indicator LED

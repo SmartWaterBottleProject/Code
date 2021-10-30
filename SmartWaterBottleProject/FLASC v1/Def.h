@@ -113,14 +113,14 @@
 #define MotorStepPort             GPIO_PORT_P1  //Motor step pin (toggle) at P1.6
 #define MotorStepPin              GPIO_PIN6
 
-#define BatteryReadPort           GPIO_PORT_P1  //BatteryRead ADC Pin at P1.3
-#define BatteryReadPin            GPIO_PIN3
-
-#define PhotodiodeReadPort        GPIO_PORT_P9  //PhotodiodeRead ADC Pin at P9.1
-#define PhotodiodeReadPin         GPIO_PIN1
-
-#define PhotoresistorReadPort     GPIO_PORT_P9  //PhotoresistorRead ADC Pin at P9.0
-#define PhotoresistorReadPin      GPIO_PIN0
+//#define BatteryReadPort           GPIO_PORT_P1  //BatteryRead ADC Pin at P1.3
+//#define BatteryReadPin            GPIO_PIN3
+//
+//#define PhotodiodeReadPort        GPIO_PORT_P9  //PhotodiodeRead ADC Pin at P9.1
+//#define PhotodiodeReadPin         GPIO_PIN1
+//
+//#define PhotoresistorReadPort     GPIO_PORT_P9  //PhotoresistorRead ADC Pin at P9.0
+//#define PhotoresistorReadPin      GPIO_PIN0
 
 
 

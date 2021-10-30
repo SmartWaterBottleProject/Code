@@ -112,9 +112,9 @@ void initialize(void) {
 
 
 //-------------ADC Inputs (Pulled high by default)------------------------------------------------------------------------------------------------------//
-       GPIO_setAsInputPinWithPullUpResistor(PhotodiodeReadPort, PhotodiodeReadPin);
-       GPIO_setAsInputPinWithPullUpResistor(PhotoresistorReadPort, PhotoresistorReadPin);
-       GPIO_setAsInputPinWithPullUpResistor(BatteryReadPort, BatteryReadPin);
+//       GPIO_setAsInputPinWithPullUpResistor(PhotodiodeReadPort, PhotodiodeReadPin);
+//       GPIO_setAsInputPinWithPullUpResistor(PhotoresistorReadPort, PhotoresistorReadPin);
+//       GPIO_setAsInputPinWithPullUpResistor(BatteryReadPort, BatteryReadPin);
        //Just set all as pulled high inputs for now??
 
 

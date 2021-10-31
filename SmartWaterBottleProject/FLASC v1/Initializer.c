@@ -60,14 +60,16 @@ void initialize(void) {
        GPIO_setAsInputPinWithPullUpResistor(SanitizeButtonPort, SanitizeButtonPin); //set sanitize button as input
        GPIO_setAsInputPinWithPullUpResistor(AnalyzeButtonPort, AnalyzeButtonPin); //set sanitize button as input
 
+       GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
+       GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
+
        GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
        GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
 
        GPIO_selectInterruptEdge(SanitizeButtonPort, SanitizeButtonPin, GPIO_HIGH_TO_LOW_TRANSITION); //set sanitize interrupt on falling edge
        GPIO_selectInterruptEdge(AnalyzeButtonPort, AnalyzeButtonPin, GPIO_HIGH_TO_LOW_TRANSITION);  //set analyze interrupt on falling edge
 
-       GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
-       GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
+
 
 //--------------Water Quality Analysis------------------------------------------------------------------------------------------------------//
        GPIO_setAsOutputPin(StepperDirectionPort, StepperDirectionPin);  //Configure stepper direction as output

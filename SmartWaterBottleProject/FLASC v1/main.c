@@ -340,7 +340,7 @@ __interrupt void T0A0_ISR() {
         REFCTL0 &= ~REFON;  //Disable internal reference for ADC
         GPIO_setOutputLowOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin);  //Disable photoresistor
 
-        if( PhotoresistorVoltage <= 1136)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
+        if( PhotoresistorVoltage <= 2730)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
         {
             GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);  //Disable UVCs
             GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn off yellow indicator LED

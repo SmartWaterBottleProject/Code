@@ -19,6 +19,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.MSP430FR5989.ccxml.TI MSP430 USB1/MSP430" value="CCS SWBP1"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.MSP430FR6989.ccxml.TI MSP430 USB1/MSP430" value="CCS SWBP1"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:CCS SWBP1}"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.MSP430FR5989.ccxml.TI MSP430 USB1/MSP430" value="C:\Users\User\CCS SWBP v1\Debug\CCS SWBP1.out"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.MSP430FR6989.ccxml.TI MSP430 USB1/MSP430" value="C:\Users\User\CCS SWBP v1\Debug\CCS SWBP1.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/CCS SWBP1"/>

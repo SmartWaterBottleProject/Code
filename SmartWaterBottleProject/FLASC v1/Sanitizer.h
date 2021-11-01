@@ -12,6 +12,6 @@
 
 
 //Bool StartOrStop: 0-Call function to Start Sanitizer, 1-Call function to Stop Sanitizer
-void Sanitize(bool*, bool StartOrStop);
+void Sanitize(bool*);
 
 #endif /* SANITIZER_H_ */

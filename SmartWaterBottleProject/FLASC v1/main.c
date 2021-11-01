@@ -3,11 +3,6 @@
 //UCF SD
 //8-23-21
 
-//Current implementation: Blue LED and Yellow LED--Sanitization. Green LED-enterring reed(); (cap removed)
-
-//**************   I changed the target configuration to 6989 for developing on the launchpad  ************************\\
-
-//Added bool StartOrStop--probably not needed and can be removed
 
 #include <msp430.h>
 #include <stdint.h>
@@ -22,13 +17,14 @@
 
 
 //Could use bool to save program space
-bool StartSanitize = 0, StopSanitize =0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0 ; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0 ; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 bool SecondUVCTimer = 0;  //When variable = 1, timer is on second iteration of sanitization. Done to account for 16-bit TA0CCR0 Overflow issues
 //ReedOpen=1, cap is on ReedOpen=0 cap is off
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
 uint8_t BatteryLife = 100;  //uint8_t to save program space
 
 void reed();  //Function for polling reed switch when cap is removed
+void UVCCheckFailed();  //Toggles Red LED when UVC check fails
 
 
 int main (void)
@@ -75,7 +71,7 @@ int main (void)
             {
             //Call Sanitizer.c to start sanitization
             ProcessRunningNot =0;  //Blocking term for process
-            Sanitize(&ReedOpen, START);  //Call sanitization function to start sanitizer
+            Sanitize(&ReedOpen);  //Call sanitization function to start sanitizer
             UVCCheck = 1;  //Signify UVC Check during first 10 seconds
 //            StopSanitize =1;  //Next time this if statement executes, the sanitizer should stop--might not need this
 
@@ -223,7 +219,15 @@ __interrupt void P1_ISR()
     GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);
     GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
 
-   if(P1IFG & SanitizeButtonPin) // Detect button 1
+//Noise filtering: wait 10 microseconds for coupling in buttons signals to settle
+    TA0CCR0 = 10-1; // at 1 MHz, set .001 second timer (1kHz), for each rising edge at 1kHz frequency
+    TA0CTL = TASSEL_2 | ID_0 | MC_1 | TACLR;
+    TA0CTL &= ~TAIFG;  //Clear flag at start
+    while((TA0CTL & TAIFG) == 0){}
+    TA0CTL |= MC_0;  //Turn off timer
+    TA0CTL &=~TAIFG;
+
+   if(GPIO_getInputPinValue(SanitizeButtonPort, SanitizeButtonPin)) // Detect button 1--sanitization
    {
        //Check if sanitizer is already running, when button is held for three seconds during sanitization, UVCs turn off
 //       if( StartSanitize)
@@ -243,15 +247,16 @@ __interrupt void P1_ISR()
        //P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs, haven't messed with this yet, not
                                                        // sure why this is here
 
-       GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
+
   // }
 
    }
 
-   else if(P1IFG & AnalyzeButtonPin)
+   else if(GPIO_getInputPinValue(AnalyzeButtonPort, AnalyzeButtonPin))
    {
 
        StartAnalyze = 1; // set global analyze variable
+
 
       // ReedOpen = 0;// this is for testing Reed interrupt functionality on launchpad
        //Disable LPM
@@ -265,8 +270,12 @@ __interrupt void P1_ISR()
 
        //P9OUT ^= (RedLED|GreenLED|YellowLED|BlueLED);  //Toggle LEDs, haven't messed with this yet, not
                                                        // sure why this is here
-       GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
+
    }
+//Clear both since signal coupling raises both interrupts
+   GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
+   GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
+
 
 }
 
@@ -340,18 +349,22 @@ __interrupt void T0A0_ISR() {
         REFCTL0 &= ~REFON;  //Disable internal reference for ADC
         GPIO_setOutputLowOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin);  //Disable photoresistor
 
+        //If UVC check fails
         if( PhotoresistorVoltage <= 2730)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
         {
             GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);  //Disable UVCs
             GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn off yellow indicator LED
             TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
             TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+            TA0CTL |= MC_0;  //Turn timer off
             ProcessRunningNot = 1; //Process is no longer running
             UVCCheck =0;  //UVC Check is done
             GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
             GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitization button interrupt
             GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
             GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
+            UVCCheckFailed();  //Toggle Red LEDs
+
         }
 
         else
@@ -374,6 +387,19 @@ __interrupt void T0A0_ISR() {
     // Hardware clears the flag, CCIFG in TA0CCTL0
 }
 
+
+void UVCCheckFailed()
+{
+    uint8_t i=0;
+    uint16_t j=0;
+    GPIO_setOutputHighOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED OFF to start
+    for(i; i<8; i++)
+    {
+        for(j=0; j<20000; j++){} //Wait here
+        GPIO_toggleOutputOnPin(RedLEDNOTPort, RedLEDNOTPin);
+    }
+    GPIO_setOutputHighOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED OFF to start
+}
 
 
 

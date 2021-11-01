@@ -60,8 +60,7 @@ void initialize(void) {
        GPIO_setAsInputPinWithPullUpResistor(SanitizeButtonPort, SanitizeButtonPin); //set sanitize button as input
        GPIO_setAsInputPinWithPullUpResistor(AnalyzeButtonPort, AnalyzeButtonPin); //set sanitize button as input
 
-       GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
-       GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
+
 
        GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
        GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
@@ -69,6 +68,8 @@ void initialize(void) {
        GPIO_selectInterruptEdge(SanitizeButtonPort, SanitizeButtonPin, GPIO_HIGH_TO_LOW_TRANSITION); //set sanitize interrupt on falling edge
        GPIO_selectInterruptEdge(AnalyzeButtonPort, AnalyzeButtonPin, GPIO_HIGH_TO_LOW_TRANSITION);  //set analyze interrupt on falling edge
 
+       GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
+       GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
 
 
 //--------------Water Quality Analysis------------------------------------------------------------------------------------------------------//
@@ -114,11 +115,9 @@ void initialize(void) {
 
 
 //-------------ADC Inputs (Pulled high by default)------------------------------------------------------------------------------------------------------//
-//       GPIO_setAsInputPinWithPullUpResistor(PhotodiodeReadPort, PhotodiodeReadPin);
-//       GPIO_setAsInputPinWithPullUpResistor(PhotoresistorReadPort, PhotoresistorReadPin);
-//       GPIO_setAsInputPinWithPullUpResistor(BatteryReadPort, BatteryReadPin);
-       //Just set all as pulled high inputs for now??
-
+       // Divert the pins to analog functionality
+         P9SEL1 |= (BIT0&BIT1);
+         P9SEL0 |= (BIT0&BIT1);
 
 
 int i=0;

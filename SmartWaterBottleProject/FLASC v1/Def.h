@@ -27,7 +27,7 @@
 
 //--------------Indicator LEDs----------------------------------------//
 
-//Note LEDs labelled "NOT" since they are active low. I.e. A low signal turns them on
+//Note LEDs labeled "NOT" since they are active low. I.e. A low signal turns them on
 #define RedLEDNOTPort      GPIO_PORT_P3  //Red LED at P3.0
 #define RedLEDNOTPin       GPIO_PIN0
 
@@ -45,10 +45,10 @@
 //--------------Buttons-------------------------------------//
 
 #define SanitizeButtonPort     GPIO_PORT_P1  //Sanitize LLWU for Button on P1.1 (same as launchpad)
-#define SanitizeButtonPin      GPIO_PIN1
+#define SanitizeButtonPin      BIT1
 
 #define AnalyzeButtonPort      GPIO_PORT_P1  //Analyze LLWU for Button on P1.2 (same as launchpad)
-#define AnalyzeButtonPin       GPIO_PIN2
+#define AnalyzeButtonPin       BIT2
 
 #define START                  0  //If zero, start sanitizer
 #define STOP                   1    //If one, stop sanitizer
@@ -113,14 +113,6 @@
 #define MotorStepPort             GPIO_PORT_P1  //Motor step pin (toggle) at P1.6
 #define MotorStepPin              GPIO_PIN6
 
-//#define BatteryReadPort           GPIO_PORT_P1  //BatteryRead ADC Pin at P1.3
-//#define BatteryReadPin            GPIO_PIN3
-//
-//#define PhotodiodeReadPort        GPIO_PORT_P9  //PhotodiodeRead ADC Pin at P9.1
-//#define PhotodiodeReadPin         GPIO_PIN1
-//
-//#define PhotoresistorReadPort     GPIO_PORT_P9  //PhotoresistorRead ADC Pin at P9.0
-//#define PhotoresistorReadPin      GPIO_PIN0
 
 
 

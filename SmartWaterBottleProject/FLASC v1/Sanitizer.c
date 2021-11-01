@@ -21,7 +21,7 @@ bool sanitize; // need something for the timer interrupt vector to be able to mo
 
 
 
-void Sanitize(bool* safe, bool StartOrStop){ //takes the address of REED to have access to the status of the Reed switch
+void Sanitize(bool* safe){ //takes the address of REED to have access to the status of the Reed switch
     //one sanitization cycle should be 3 minutes (625 Hz x 180 seconds = 112,500 for counter, which starts at zero)
 
     /* hey, the driverlib functions want me to use a struct just to initialize up mode, this is done in one line
@@ -36,15 +36,14 @@ void Sanitize(bool* safe, bool StartOrStop){ //takes the address of REED to have
     sanitize=1; //global variable for Santizer.c, initialized on here and toggled off by TimerA0
 
   //Start sanitizer
-    if((*safe) && (!StartOrStop)){ // checks that reed switch is closed, cap is secure, dereferencing REED address
+    if((*safe)){ // checks that reed switch is closed, cap is secure, dereferencing REED address
 
-        TA0CCTL0 |= CCIE; // Enable Channel 0 CCIE bit
-        TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
-
-
+        TA0CTL &=~TAIFG;
         // Timer_A: ACLK, div by 1, up mode, clear TAR (leaves TAIE=0)
         TA0CCR0 = 6250-1; // at 625 Hz, set 10 second timer and then check UVC Voltages (10s * 625 Hz =6250)
         TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
+        TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+        TA0CCTL0 |= CCIE; // Enable Channel 0 CCIE bit
 
         // Enable the global interrupt bit,
         //_enable_interrupts();

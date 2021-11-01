@@ -23,11 +23,6 @@ void Initialize_ADC_Photoresistor() //function to init. adc
 {
 
     //    GPIO_setOutputHighOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin);  //Enable photoresistor
-// Divert the pins to analog functionality
-  P9SEL1 |= BIT0;
-  P9SEL0 |= BIT0;
-
-
 
    ADC12CTL0 |= ADC12ON; // Turn on the ADC module
   ADC12CTL0 &= ~ADC12ENC;  // Turn off ENC (Enable Conversion) bit while modifying the configuration
@@ -83,10 +78,6 @@ void Initialize_ADC_Photoresistor() //function to init. adc
 
 void Initialize_ADC_Photodiode() //function to init. adc
 {
-// Divert the pins to analog functionality
-  P9SEL1 |= BIT1;
-  P9SEL0 |= BIT1;
-
   ADC12CTL0 |= ADC12ON; // Turn on the ADC module
   ADC12CTL0 &= ~ADC12ENC;  // Turn off ENC (Enable Conversion) bit while modifying the configuration
 

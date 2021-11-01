@@ -35,6 +35,7 @@ uint16_t * Analyze(void)
 
     GPIO_setOutputHighOnPin(MotorEnablePort, MotorEnablePin);  //Enable motor (connect to ground through MOSFET)
     GPIO_setOutputHighOnPin(StepperSleepNotPort, StepperSleepNotPin);  //Wake up motor
+    GPIO_setOutputLowOnPin(BlueLEDNOTPort, BlueLEDNOTPin);  //Turn blue LED on
 
 
 
@@ -161,26 +162,6 @@ uint16_t * Analyze(void)
 
            return;
 }
-
-
-
-
-
-//    TB0CCR0=20000-1; //@1 Mhz, 20 millisecond
-//    TB0CTL= TASSEL_2 | ID_0 | MC_1 | TBCLR;
-//    TB0CCTL3 |= OUTMOD_7;     //Channel Reset/Set   ---these two lines might be wrong
-//    TB0CCR3 = Start;  //Start PWM?
-
-
-
-//********************Analysis Run***********************************************************//
-        //Finding Peak of low power mode
-
-    //    //Configure both Low power and High power LD at same time
-    //    P1DIR |= LDHighPowerEnablePin;
-    //    P1SEL1 |= LDHighPowerEnable;
-    //    P1SEL0 |= LDHighPowerEnable;
-
 
 int Step(int MoveBy)
 {

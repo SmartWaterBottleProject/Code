@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <driverlib.h>
 #include <intrinsics.h>
+#include <eusci_a_uart.h>
 
 
 #ifndef PORTS_H_

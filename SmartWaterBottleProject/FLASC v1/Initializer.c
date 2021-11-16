@@ -109,9 +109,39 @@ void initialize(void) {
        GPIO_setAsOutputPin(BatteryReadEnablePort, BatteryReadEnablePin);        //Set battery read enable as output
        GPIO_setOutputLowOnPin(BatteryReadEnablePort, BatteryReadEnablePin);     //Disable Battery read EN by default
 
-//--------------Bluetooth Module------------------------------------------------------------------------------------------------------//
+//--------------Bluetooth Module / UART------------------------------------------------------------------------------------------------------//
+
+              // Divert pins to UART functionality
+                  P2SEL1 &= ~(BIT0|BIT1);
+                  P2SEL0 |= (BIT0|BIT1);
+
+                  // Configure UART
+                  EUSCI_A_UART_initParam param = {0};
+                  param.selectClockSource = EUSCI_A_UART_CLOCKSOURCE_SMCLK;
+
+                  //These values calculated according to family user's guide, pdf p.779
+                  param.clockPrescalar = 2;
+                  param.firstModReg = 11;
+                  param.secondModReg = 0x92;
+                  param.overSampling = EUSCI_A_UART_OVERSAMPLING_BAUDRATE_GENERATION; //OS16 = 1
+
+                  //These values confirmed in Cypress EZ-Serial firmware guide
+                  param.parity = EUSCI_A_UART_NO_PARITY;
+                  param.msborLsbFirst = EUSCI_A_UART_LSB_FIRST;
+                  param.numberofStopBits = EUSCI_A_UART_ONE_STOP_BIT;
+                  param.uartMode = EUSCI_A_UART_MODE;
 
 
+
+                  /*if (STATUS_FAIL == EUSCI_A_UART_init(EUSCI_A0_BASE, &param)) {
+                  return; // error handling suggested by driverlib guide
+                  }*/
+                  EUSCI_A_UART_init(EUSCI_A0_BASE, &param);
+
+                  EUSCI_A_UART_enable(EUSCI_A0_BASE);
+
+                  // Enable USCI_A0 RX interrupt
+                  EUSCI_A_UART_enableInterrupt(EUSCI_A0_BASE, EUSCI_A_UART_RECEIVE_INTERRUPT);
 
 
 //-------------ADC Inputs (Pulled high by default)------------------------------------------------------------------------------------------------------//

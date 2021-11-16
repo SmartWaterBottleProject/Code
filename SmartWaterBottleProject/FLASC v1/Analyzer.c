@@ -19,8 +19,14 @@
 #define POSTZERO 80  //How many positions from zero the stepper should move after zero-ing run
 #define BASELINE 0  //What can be considered a zero-voltage, experimentally
 #define WIDTH 0  //Width of photodiode's element divided by step length of stepper motor
+int LDPower; 	 //Global laser power level
 
 int Step(int);  //Steps the stepper motor over the input number of times
+int Step(int);  //Steps the stepper motor over the input number of times
+void Laser(int); //Sets the power level
+void Wait(int); //Waits a certain number of milliseconds.
+
+
 
 uint16_t GetVoltage(void);  //Function to take ADC measurement
 
@@ -46,7 +52,7 @@ uint16_t * Analyze(void)
 
 
     //Turn on laser at low power setting
-    GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Turn on Laser Diode
+    Laser(1);  //Turn on Laser Diode
 
     Voltage = GetVoltage();  //Take ADC Measurement
     int x=0;
@@ -79,7 +85,7 @@ uint16_t * Analyze(void)
 
 //********************Analysis Run***********************************************************//
 
-           GPIO_setOutputHighOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);  //Add additional power for laser diode
+           Laser(2);  //Add additional power for laser diode
 
            for(;;)
            {
@@ -159,7 +165,7 @@ uint16_t * Analyze(void)
               }
 
            GPIO_setOutputLowOnPin(StepperSleepNotPort, StepperSleepNotPin);  //Put motor back to sleep
-
+			Laser(0);
            return;
 }
 
@@ -210,6 +216,43 @@ uint16_t GetVoltage()
 	return PhotodiodeVoltage;
 }
 
+void Laser(int LDPowerLevelTo){ //This system assumes a valid operation.  The logic was confirmed to work in C terminal.
+    if(LDPowerLevelTo<0||LDPowerLevelTo>2) return; //Error handling
+    if(LDPowerLevelTo == 0){
+        if(LDPower == 1){
+            GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);
+        }
+        if(LDPower == 2){
+            GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
+            GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);
+        }
+    }
+    if(LDPowerLevelTo == 1){
+        if(LDPower == 0){
+            GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);
+        }
+        if(LDPower == 2){
+            GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
+        }
+    }
+    if(LDPowerLevelTo == 2){
+        if(LDPower == 0){
+            GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);
+            GPIO_setOutputHighOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
+        }
+        if(LDPower == 1){
+            GPIO_setOutputHighOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
+        }
+    }
+    LDPower = LDPowerLevelTo;
+}
+void Wait(int time){ //Waits a specified number of milliseconds
+    //Cycles do not seem to be exact.  This results in about a 1 millisecond second delay per unit of time.
+    int i;
+    for(i=0;i<time;i++){
+        __delay_cycles(1000);
+    }
+}
 //Once finished call exporter to send data via bluetooth
 
 

@@ -59,6 +59,7 @@ Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx
 Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/eusci_b_spi.h
 Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/sdhs.h
 Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/crc.h
+Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/ADC.h
 
 ../Batteryreader.c:
 
@@ -177,4 +178,6 @@ C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/eusci_b_spi.h:
 C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/sdhs.h:
 
 C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/crc.h:
+
+C:/Users/User/SWBP\ Workspace/FLASC\ v1/ADC.h:
 

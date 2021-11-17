@@ -8,6 +8,6 @@
 #ifndef BATTERYREADER_H_
 #define BATTERYREADER_H_
 
-int Batteryread(void);
+int Batteryread(uint8_t BatteryLife);
 
 #endif /* BATTERYREADER_H_ */

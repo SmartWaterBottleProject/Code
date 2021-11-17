@@ -20,8 +20,11 @@
 #define BASELINE 0  //What can be considered a zero-voltage, experimentally
 #define WIDTH 0  //Width of photodiode's element divided by step length of stepper motor
 
-int Step(int);  //Steps the stepper motor over the input number of times
+int LDPower;     //Global laser power level
 
+int Step(int);  //Steps the stepper motor over the input number of times
+void Laser(int); //Sets the power level
+void Wait(int); //Waits a certain number of milliseconds.
 uint16_t GetVoltage(void);  //Function to take ADC measurement
 
 uint16_t * Analyze(void)
@@ -34,7 +37,7 @@ uint16_t * Analyze(void)
     bool PassedPeak = 0;      //Have we passed the peak, 0-no, 1-yes
 
     GPIO_setOutputHighOnPin(MotorEnablePort, MotorEnablePin);  //Enable motor (connect to ground through MOSFET)
-    GPIO_setOutputHighOnPin(StepperSleepNotPort, StepperSleepNotPin);  //Wake up motor
+//    GPIO_setOutputHighOnPin(StepperSleepNotPort, StepperSleepNotPin);  //Wake up motor
     GPIO_setOutputLowOnPin(BlueLEDNOTPort, BlueLEDNOTPin);  //Turn blue LED on
 
 
@@ -196,6 +199,31 @@ int Step(int MoveBy)
 	//Move the stepper motor up or down the MoveBy number of times.
 	return MoveBy;
 }
+
+void Laser(int LDPowerLevelTo){ //This system assumes a valid operation.  The logic was confirmed to work in C terminal.
+    if(LDPowerLevelTo<0||LDPowerLevelTo>2) return; //Error handling
+    if(LDPowerLevelTo == 0){
+        if(LDPower == 1){
+            GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);
+        }
+        if(LDPower == 2){
+            GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
+            GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);
+        }
+    }
+    if(LDPowerLevelTo == 1){
+        if(LDPower == 0){
+            GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);
+        }
+        if(LDPower == 2){
+            GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
+        }
+    }
+    if(LDPowerLevelTo == 2){
+        if(LDPower == 0){
+            GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);
+            GPIO_setOutputHighOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
+
 
 //Get the voltage from the ADC, returns 16 bit integer.
 uint16_t GetVoltage()

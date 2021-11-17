@@ -6,7 +6,6 @@
  */
 #include <Batteryreader.h>
 #include <Def.h>
-#include <ADC.h>
 
 //ADC read on Battery voltage
     //Compare to 2-d array (hash table) of voltages to determine device battery %, rounded to the nearest 5% (voltage,%)
@@ -14,10 +13,9 @@
 
 //Return Batt % to main.c
 
-int Batteryread(uint8_t BatteryLife)
-{
-    Initialize_ADC_BatteryRead();  //Configure ADC for battery read
+int Batteryread(void){
 
-    return BatteryLife;
+    //Run ADC to check voltage and return charge as integer percentage
+    return 85;
 }
 

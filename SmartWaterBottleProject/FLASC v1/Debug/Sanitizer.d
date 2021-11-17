@@ -3,7 +3,7 @@
 Sanitizer.obj: ../Sanitizer.c
 Sanitizer.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/Def.h
 Sanitizer.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430.h
-Sanitizer.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr6989.h
+Sanitizer.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr5989.h
 Sanitizer.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/in430.h
 Sanitizer.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics.h
 Sanitizer.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics_legacy_undefs.h
@@ -66,7 +66,7 @@ C:/Users/User/SWBP\ Workspace/FLASC\ v1/Def.h:
 
 C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430.h:
 
-C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr6989.h:
+C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr5989.h:
 
 C:/ti/ccs1040/ccs/ccs_base/msp430/include/in430.h:
 

@@ -1,5 +1,5 @@
 //Smart Water Bottle Project Main Function
-//Programmers: Ryan Koons, Dean Pickett, and Matthew Woodruff
+//Programmers: Dean Pickett, Ryan Koons, and Matthew Woodruff
 //UCF SD
 //8-23-21
 

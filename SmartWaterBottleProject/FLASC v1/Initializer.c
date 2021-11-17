@@ -76,7 +76,7 @@ void initialize(void) {
        GPIO_setAsOutputPin(StepperDirectionPort, StepperDirectionPin);  //Configure stepper direction as output
        GPIO_setOutputHighOnPin(StepperDirectionPort, StepperDirectionPin);  //Assert + or high by default
        GPIO_setAsOutputPin(MotorEnablePort, MotorEnablePin);            //Configure Motor Enable as output
-       GPIO_setOutputLowOnPin(MotorEnablePort, MotorEnablePin);         //Disable motor by default
+       GPIO_setOutputHighOnPin(MotorEnablePort, MotorEnablePin);         //ENABLE motor by default
        GPIO_setAsOutputPin(StepperSleepNotPort, StepperSleepNotPin);          //Configure stepper sleep as output
        GPIO_setOutputHighOnPin(StepperSleepNotPort, StepperSleepNotPin);       //For enable configuration--set as high and disable stepper (stepper motor is asleep, approx. 1uA current)
        GPIO_setAsOutputPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Configure LD Low Power mode enable pin as output

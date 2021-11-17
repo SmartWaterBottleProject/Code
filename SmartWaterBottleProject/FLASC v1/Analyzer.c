@@ -19,12 +19,15 @@
 #define POSTZERO 80  //How many positions from zero the stepper should move after zero-ing run
 #define BASELINE 0  //What can be considered a zero-voltage, experimentally
 #define WIDTH 0  //Width of photodiode's element divided by step length of stepper motor
+int LDPower; 	 //Global laser power level
 
-int LDPower;     //Global laser power level
-
+int Step(int);  //Steps the stepper motor over the input number of times
 int Step(int);  //Steps the stepper motor over the input number of times
 void Laser(int); //Sets the power level
 void Wait(int); //Waits a certain number of milliseconds.
+
+
+
 uint16_t GetVoltage(void);  //Function to take ADC measurement
 
 uint16_t * Analyze(void)
@@ -36,7 +39,7 @@ uint16_t * Analyze(void)
     uint16_t j=0;  //For loop counter
     bool PassedPeak = 0;      //Have we passed the peak, 0-no, 1-yes
 
-    GPIO_setOutputHighOnPin(MotorEnablePort, MotorEnablePin);  //Enable motor (connect to ground through MOSFET)
+//    GPIO_setOutputHighOnPin(MotorEnablePort, MotorEnablePin);  //Enable motor (connect to ground through MOSFET)
 //    GPIO_setOutputHighOnPin(StepperSleepNotPort, StepperSleepNotPin);  //Wake up motor
     GPIO_setOutputLowOnPin(BlueLEDNOTPort, BlueLEDNOTPin);  //Turn blue LED on
 
@@ -49,7 +52,7 @@ uint16_t * Analyze(void)
 
 
     //Turn on laser at low power setting
-    GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Turn on Laser Diode
+    Laser(1);  //Turn on Laser Diode
 
     Voltage = GetVoltage();  //Take ADC Measurement
     int x=0;
@@ -82,7 +85,7 @@ uint16_t * Analyze(void)
 
 //********************Analysis Run***********************************************************//
 
-           GPIO_setOutputHighOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);  //Add additional power for laser diode
+           Laser(2);  //Add additional power for laser diode
 
            for(;;)
            {
@@ -162,7 +165,7 @@ uint16_t * Analyze(void)
               }
 
            GPIO_setOutputLowOnPin(StepperSleepNotPort, StepperSleepNotPin);  //Put motor back to sleep
-
+			Laser(0);
            return;
 }
 
@@ -200,6 +203,19 @@ int Step(int MoveBy)
 	return MoveBy;
 }
 
+//Get the voltage from the ADC, returns 16 bit integer.
+uint16_t GetVoltage()
+{
+    Initialize_ADC_Photodiode();  //Initialize the ADC
+    ADC12CTL0 |= ADC12SC; //set, start conversion for adc
+    //wait for flag to clear
+    while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field
+    uint16_t PhotodiodeVoltage = ADC12MEM0;
+    ADC12CTL0 &= ~ADC12ON;  //Turn ADC off? Maybe leaving it on causes, current draw.
+
+	return PhotodiodeVoltage;
+}
+
 void Laser(int LDPowerLevelTo){ //This system assumes a valid operation.  The logic was confirmed to work in C terminal.
     if(LDPowerLevelTo<0||LDPowerLevelTo>2) return; //Error handling
     if(LDPowerLevelTo == 0){
@@ -223,21 +239,20 @@ void Laser(int LDPowerLevelTo){ //This system assumes a valid operation.  The lo
         if(LDPower == 0){
             GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);
             GPIO_setOutputHighOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
-
-
-//Get the voltage from the ADC, returns 16 bit integer.
-uint16_t GetVoltage()
-{
-    Initialize_ADC_Photodiode();  //Initialize the ADC
-    ADC12CTL0 |= ADC12SC; //set, start conversion for adc
-    //wait for flag to clear
-    while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field
-    uint16_t PhotodiodeVoltage = ADC12MEM0;
-    ADC12CTL0 &= ~ADC12ON;  //Turn ADC off? Maybe leaving it on causes, current draw.
-
-	return PhotodiodeVoltage;
+        }
+        if(LDPower == 1){
+            GPIO_setOutputHighOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
+        }
+    }
+    LDPower = LDPowerLevelTo;
 }
-
+void Wait(int time){ //Waits a specified number of milliseconds
+    //Cycles do not seem to be exact.  This results in about a 1 millisecond second delay per unit of time.
+    int i;
+    for(i=0;i<time;i++){
+        __delay_cycles(1000);
+    }
+}
 //Once finished call exporter to send data via bluetooth
 
 

@@ -4,7 +4,7 @@ Batteryreader.obj: ../Batteryreader.c
 Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/Batteryreader.h
 Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/Def.h
 Batteryreader.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430.h
-Batteryreader.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr6989.h
+Batteryreader.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr5989.h
 Batteryreader.obj: C:/ti/ccs1040/ccs/ccs_base/msp430/include/in430.h
 Batteryreader.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics.h
 Batteryreader.obj: C:/ti/ccs1040/ccs/tools/compiler/ti-cgt-msp430_20.2.5.LTS/include/intrinsics_legacy_undefs.h
@@ -59,7 +59,6 @@ Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx
 Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/eusci_b_spi.h
 Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/sdhs.h
 Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/crc.h
-Batteryreader.obj: C:/Users/User/SWBP\ Workspace/FLASC\ v1/ADC.h
 
 ../Batteryreader.c:
 
@@ -69,7 +68,7 @@ C:/Users/User/SWBP\ Workspace/FLASC\ v1/Def.h:
 
 C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430.h:
 
-C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr6989.h:
+C:/ti/ccs1040/ccs/ccs_base/msp430/include/msp430fr5989.h:
 
 C:/ti/ccs1040/ccs/ccs_base/msp430/include/in430.h:
 
@@ -178,6 +177,4 @@ C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/eusci_b_spi.h:
 C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/sdhs.h:
 
 C:/Users/User/SWBP\ Workspace/FLASC\ v1/driverlib/MSP430FR5xx_6xx/crc.h:
-
-C:/Users/User/SWBP\ Workspace/FLASC\ v1/ADC.h:
 

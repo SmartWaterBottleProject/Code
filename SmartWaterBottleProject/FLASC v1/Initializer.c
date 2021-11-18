@@ -27,6 +27,9 @@ void initialize(void) {
        //initialize clock signal of Aux clock to VLO clock (10 kHz) divided by 16 = 625 Hz
        CS_initClockSignal (CS_ACLK, CS_VLOCLK_SELECT, CS_CLOCK_DIVIDER_16);
 
+       //initialize clock signal of Aux clock to VLO clock (5 MHz) divided by 1 = 625 Hz
+       CS_initClockSignal (CS_SMCLK, CS_MODOSC_SELECT, CS_CLOCK_DIVIDER_1);
+
        //check is Reed switch is pulled low and cap is secured
 
        //Sample using DriverLib--P4.3 o/p, this is all code for custom PCB
@@ -138,10 +141,6 @@ void initialize(void) {
                   }*/
                   EUSCI_A_UART_init(EUSCI_A0_BASE, &param);
 
-                  EUSCI_A_UART_enable(EUSCI_A0_BASE);
-
-                  // Enable USCI_A0 RX interrupt
-                  EUSCI_A_UART_enableInterrupt(EUSCI_A0_BASE, EUSCI_A_UART_RECEIVE_INTERRUPT);
 
 
 //-------------ADC Inputs (Pulled high by default)------------------------------------------------------------------------------------------------------//

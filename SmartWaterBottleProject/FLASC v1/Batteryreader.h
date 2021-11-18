@@ -8,6 +8,8 @@
 #ifndef BATTERYREADER_H_
 #define BATTERYREADER_H_
 
-int Batteryread(void);
+#include <stdint.h>
+
+uint8_t Batteryread(void);
 
 #endif /* BATTERYREADER_H_ */

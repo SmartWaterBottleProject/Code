@@ -19,9 +19,8 @@
 //Could use bool to save program space
 bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0 ; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 bool SecondUVCTimer = 0;  //When variable = 1, timer is on second iteration of sanitization. Done to account for 16-bit TA0CCR0 Overflow issues
-//ReedOpen=1, cap is on ReedOpen=0 cap is off
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
-uint8_t BatteryLife = 100;  //uint8_t to save program space
+uint8_t BatteryPercentage=0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
 
 void reed();  //Function for polling reed switch when cap is removed
 void UVCCheckFailed();  //Toggles Red LED when UVC check fails
@@ -33,7 +32,7 @@ int main (void)
     initialize();
 
     //Call Batteryread
-    BatteryLife = Batteryread();
+    BatteryPercentage = Batteryread();
 
     _enable_interrupts();
 
@@ -62,12 +61,13 @@ int main (void)
         {
             reed();  //Call reed polling function
         }
+
         if(StartSanitize && ProcessRunningNot) //checks if sanitize button was pressed, and no other process is running
         {
             //Call Batteryread
-            BatteryLife = Batteryread();
+            BatteryPercentage = Batteryread();
 
-            if(BatteryLife>= 20)  //Ensure there is enough battery life, prior to starting sanitization
+            if(BatteryPercentage>= 20)  //Ensure there is enough battery life, prior to starting sanitization
             {
             //Call Sanitizer.c to start sanitization
             ProcessRunningNot =0;  //Blocking term for process
@@ -90,9 +90,9 @@ int main (void)
         if(StartAnalyze && ProcessRunningNot) //checks if analyze button was pressed, and no other process is running
         {
             //Call Batteryread
-           BatteryLife = Batteryread();
+           BatteryPercentage = Batteryread();
 
-            if(BatteryLife >= 20) //Ensure there is enough battery life, prior to starting sanitization
+            if(BatteryPercentage >= 20) //Ensure there is enough battery life, prior to starting sanitization
             {
                 ProcessRunningNot = 0;
                 Analyze(); //Call the analyzer function
@@ -145,6 +145,7 @@ void reed()
 
     else
     {
+        //Remove current Water quality result/sample
         //Disable interrupts for buttons
         GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Disable interrupt for sanitization button
         GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);    //Disable interrupt for analysis button

@@ -63,6 +63,10 @@ int main (void)
             reed();  //Call reed polling function
         }
 
+        //For testing exporter
+        Export(BatteryPercentage, 1);
+        Export(53, 0);
+
         if(StartSanitize && ProcessRunningNot) //checks if sanitize button was pressed, and no other process is running
         {
             //Call Batteryread

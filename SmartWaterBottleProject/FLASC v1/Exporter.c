@@ -23,10 +23,13 @@
 void uart_write_uint8(uint8_t n, uint8_t* j);
 
 
-void Export(uint8_t BattPerc, uint8_t WatQual){
+void Export(uint8_t BattPerc, bool WatQual){
 
     unsigned char transmit1[6] = "Bat: ";
-    unsigned char transmit2[9] = "% | WQ: ";
+    unsigned char transmit2[15] = "% | WQ: Good ";  //Had to make slightly larger, dont know why
+    unsigned char transmit3[12]  = "% | WQ: Bad";
+//    unsigned char transmit3[5] = "Good";
+//    unsigned char transmit[4]  = "Bad";
     uint8_t i=0, j=0;
 
 
@@ -43,18 +46,37 @@ void Export(uint8_t BattPerc, uint8_t WatQual){
 
     uart_write_uint8(BattPerc, &j);
 
-
-    //transmits the string "% | WQ: "
-    for(i=0;i<8;i++){
-        EUSCI_A_UART_transmitData (EUSCI_A0_BASE, transmit2[i]);
-        j++;
+    if(WatQual)
+    {
+        //transmits the string "% | WQ: Good"
+        for(i=0;i<14;i++)
+            {
+            EUSCI_A_UART_transmitData (EUSCI_A0_BASE, transmit2[i]);
+            j++;
+            }
     }
 
-    uart_write_uint8(WatQual, &j);
+    else if (!WatQual)
+    {
+        //transmits the string "% | WQ: Bad"
+        for(i=0;i<11;i++)
+        {
+            EUSCI_A_UART_transmitData (EUSCI_A0_BASE, transmit3[i]);
+            j++;
+        }
+    }
 
 
-    EUSCI_A_UART_transmitData (EUSCI_A0_BASE, '%'); // percent sign for water quality reading
-    j++;
+
+
+
+
+//
+//    uart_write_uint8(WatQual, &j);
+
+
+//    EUSCI_A_UART_transmitData (EUSCI_A0_BASE, '% \n'); // percent sign for water quality reading
+//    j++;
 
     //this is trying to fill out the rest of the Cypress data characteristic with spaces
     //if nothing is added to punc

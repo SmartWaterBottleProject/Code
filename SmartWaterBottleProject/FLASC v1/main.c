@@ -20,7 +20,7 @@
 bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0 ; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 bool SecondUVCTimer = 0;  //When variable = 1, timer is on second iteration of sanitization. Done to account for 16-bit TA0CCR0 Overflow issues
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
-uint8_t BatteryPercentage=0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
+
 
 void reed();  //Function for polling reed switch when cap is removed
 void UVCCheckFailed();  //Toggles Red LED when UVC check fails
@@ -28,6 +28,7 @@ void UVCCheckFailed();  //Toggles Red LED when UVC check fails
 
 int main (void)
 {
+    uint8_t BatteryPercentage=0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
     //Call Initializer.c, set pin-configuration
     initialize();
 
@@ -80,7 +81,7 @@ int main (void)
             else
             {
                 //Should eventually Blink red LED for low battery
-                GPIO_setOutputLowOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED ON
+                UVCCheckFailed();
             }
 
            StartSanitize = 0;  //Clear sanitization mode, not enough battery life to perform
@@ -104,7 +105,7 @@ int main (void)
             else
                         {
                             //Should eventually Blink red LED for low battery
-                            GPIO_setOutputLowOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED ON
+                UVCCheckFailed();
                         }
 
 
@@ -293,6 +294,8 @@ __interrupt void T0A0_ISR() {
            if(GPIO_getInputPinValue(ReedSwitchPort, ReedSwitchPin) == 1)     //Check to see if cap was placed back on
            {
               ReedOpen = 1; //Cap is no longer off, switch is open again
+              TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+              TA0CCTL0 &= ~CCIE; // Enable Channel 0 CCIE bit
               TA0CTL = MC_0;  //Turn timer off
               GPIO_setOutputHighOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn RED LED off
               LPM4_EXIT;  //Exit low power mode

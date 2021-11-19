@@ -148,6 +148,9 @@ void initialize(void) {
          P9SEL1 |= (BIT0&BIT1);
          P9SEL0 |= (BIT0&BIT1);
 
+         P1SEL1 |= BIT3;
+         P1SEL0 |= BIT3;
+
 
 int i=0;
 for(i; i<10000; i++){}

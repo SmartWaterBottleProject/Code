@@ -20,6 +20,8 @@ uint8_t Batteryread(void){
     GPIO_setOutputHighOnPin(BatteryReadEnablePort, BatteryReadEnablePin);  //Enable Battery Read
     Initialize_ADC_BatteryRead();  //Initialize ADC for battery read;
 
+
+
     ADC12CTL0 |= ADC12SC; //set, start conversion for adc
             //wait for flag to clear
             while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field

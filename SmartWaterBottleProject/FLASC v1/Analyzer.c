@@ -30,7 +30,7 @@ void Wait(int); //Waits a certain number of milliseconds.
 
 uint16_t GetVoltage(void);  //Function to take ADC measurement
 
-uint16_t * Analyze(void)
+bool Analyze()
 {
 
     uint16_t MAX = ZERO;      //Measured Max. value from ADC read
@@ -38,9 +38,9 @@ uint16_t * Analyze(void)
     uint16_t i=0;  //For loop counter that runs WIDTH times during analysis
     uint16_t j=0;  //For loop counter
     bool PassedPeak = 0;      //Have we passed the peak, 0-no, 1-yes
+    bool AnalyzerResult =0; //Boolean result returned by analyzer, sample is bad by default
 
-//    GPIO_setOutputHighOnPin(MotorEnablePort, MotorEnablePin);  //Enable motor (connect to ground through MOSFET)
-//    GPIO_setOutputHighOnPin(StepperSleepNotPort, StepperSleepNotPin);  //Wake up motor
+
     GPIO_setOutputLowOnPin(BlueLEDNOTPort, BlueLEDNOTPin);  //Turn blue LED on
 
 
@@ -166,7 +166,7 @@ uint16_t * Analyze(void)
 
            GPIO_setOutputLowOnPin(StepperSleepNotPort, StepperSleepNotPin);  //Put motor back to sleep
 			Laser(0);
-           return;
+           return AnalyzerResult;
 }
 
 int Step(int MoveBy)

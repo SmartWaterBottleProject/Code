@@ -17,18 +17,17 @@
 
 
 //Could use bool to save program space
-bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0, ValidSample=0; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0, ValidSample=0, AnalyzerResult=0; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 bool SecondUVCTimer = 0;  //When variable = 1, timer is on second iteration of sanitization. Done to account for 16-bit TA0CCR0 Overflow issues
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
-
+uint8_t BatteryPercentage =0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
 
 void reed();  //Function for polling reed switch when cap is removed
-void UVCCheckFailed();  //Toggles Red LED when UVC check fails
+void BlinkLight(int,int);  //Toggles various led, port and pin
 
 
 int main (void)
 {
-    uint8_t BatteryPercentage=0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
     //Call Initializer.c, set pin-configuration
     initialize();
 
@@ -86,7 +85,7 @@ int main (void)
             else
             {
                 //Should eventually Blink red LED for low battery
-                UVCCheckFailed();
+                BlinkLight(RedLEDNOTPort, RedLEDNOTPin);  //Toggle RED led
             }
 
            StartSanitize = 0;  //Clear sanitization mode, not enough battery life to perform
@@ -101,7 +100,7 @@ int main (void)
             if(BatteryPercentage >= 20) //Ensure there is enough battery life, prior to starting sanitization
             {
                 ProcessRunningNot = 0;
-                Analyze(); //Call the analyzer function
+                AnalyzerResult = Analyze(); //Call the analyzer function, and return the analyzer result
                 ProcessRunningNot = 1;  //Process is no longer running
                 ValidSample=1; //There is now a valid sample
                 //Call Analyzer.c
@@ -112,7 +111,7 @@ int main (void)
             else
                         {
                             //Should eventually Blink red LED for low battery
-                UVCCheckFailed();
+                BlinkLight(RedLEDNOTPort, RedLEDNOTPin);
                         }
 
 
@@ -158,7 +157,9 @@ void reed()
         ValidSample = 0;  //Sample is no longer valid
         GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Disable interrupt for sanitization button
         GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);    //Disable interrupt for analysis button
-
+        GPIO_setOutputHighOnPin(GreenLEDNOTPort, GreenLEDNOTPin);      //Turn all other LEDs off
+        GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin);
+        GPIO_setOutputHighOnPin(BlueLEDNOTPort, BlueLEDNOTPin);
         GPIO_setOutputLowOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn on Red
         GPIO_setAsInputPinWithPullDownResistor(ReedSwitchPort, ReedSwitchPin);  //Switch pull up to pull down reed switch (this eliminates current draw)
 
@@ -220,7 +221,6 @@ __interrupt void P2_ISR()
     }
 }
 
-//Need to add interrupt for 3 second timer when button is held down during device mode
 
 #pragma vector = PORT1_VECTOR  //Link the ISR to the Vector
 __interrupt void P1_ISR()
@@ -265,7 +265,32 @@ __interrupt void P1_ISR()
    else if(GPIO_getInputPinValue(AnalyzeButtonPort, AnalyzeButtonPin))
    {
 
-       StartAnalyze = 1; // set global analyze variable
+       //Check for button hold, wait 1/2 second
+           TA0CCR0 = 625; // at 1 MHz, set .5 second timer
+           TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
+           TA0CTL &= ~TAIFG;  //Clear flag at start
+           while((TA0CTL & TAIFG) == 0){}
+           TA0CTL |= MC_0;  //Turn off timer
+           TA0CTL &=~TAIFG;
+
+           //Button no longer being held
+//           GPIO_setAsInputPin(AnalyzeButtonPort, AnalyzeButtonPin);  //Remove pull up to check pin status?
+//           uint8_t ButtonResult = GPIO_getInputPinValue(AnalyzeButtonPort, AnalyzeButtonPin);
+
+           if(P1IN&BIT1)  //Only analyze button is pressed
+           {
+               StartAnalyze = 1; // set global analyze variable
+           }
+
+           else if(GPIO_getInputPinValue(SanitizeButtonPort, SanitizeButtonPin)) //Both buttons are pressed
+           {
+               Export(BatteryPercentage, AnalyzerResult, ValidSample);  //Call the exporter
+               BlinkLight(BlueLEDNOTPort, BlueLEDNOTPin);  //Toggle Blue LED
+           }
+
+//           GPIO_setAsInputPinWithPullUpResistor(AnalyzeButtonPort, AnalyzeButtonPin);
+
+
 
 
       // ReedOpen = 0;// this is for testing Reed interrupt functionality on launchpad
@@ -375,7 +400,7 @@ __interrupt void T0A0_ISR() {
             GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitization button interrupt
             GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
             GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
-            UVCCheckFailed();  //Toggle Red LEDs
+            BlinkLight(RedLEDNOTPort, RedLEDNOTPin);  //Toggle Red LEDs
 
         }
 
@@ -399,18 +424,18 @@ __interrupt void T0A0_ISR() {
     // Hardware clears the flag, CCIFG in TA0CCTL0
 }
 
-
-void UVCCheckFailed()
+//Blink LED at port and pin
+void BlinkLight(int Port, int Pin)  //Port and pin
 {
     uint8_t i=0;
     uint16_t j=0;
-    GPIO_setOutputHighOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED OFF to start
+    GPIO_setOutputHighOnPin(Port, Pin);  //Turn Red LED OFF to start
     for(i; i<8; i++)
     {
         for(j=0; j<20000; j++){} //Wait here
-        GPIO_toggleOutputOnPin(RedLEDNOTPort, RedLEDNOTPin);
+        GPIO_toggleOutputOnPin(Port, Pin);
     }
-    GPIO_setOutputHighOnPin(RedLEDNOTPort, RedLEDNOTPin);  //Turn Red LED OFF to start
+    GPIO_setOutputHighOnPin(Port, Pin);  //Turn Red LED OFF to start
 }
 
 

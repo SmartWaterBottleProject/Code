@@ -17,7 +17,7 @@
 
 
 //Could use bool to save program space
-bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0 ; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0, ValidSample=0; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 bool SecondUVCTimer = 0;  //When variable = 1, timer is on second iteration of sanitization. Done to account for 16-bit TA0CCR0 Overflow issues
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
 
@@ -64,8 +64,9 @@ int main (void)
         }
 
         //For testing exporter
-        Export(BatteryPercentage, 1);
-        Export(53, 0);
+        Export(BatteryPercentage, 1, ValidSample);  //No valid sample, transmit batt % only
+        Export(70,1,1);  //Valid: transmit % and good
+        Export(53, 0, 1);  //Valid: transmit % and bad
 
         if(StartSanitize && ProcessRunningNot) //checks if sanitize button was pressed, and no other process is running
         {
@@ -101,6 +102,8 @@ int main (void)
             {
                 ProcessRunningNot = 0;
                 Analyze(); //Call the analyzer function
+                ProcessRunningNot = 1;  //Process is no longer running
+                ValidSample=1; //There is now a valid sample
                 //Call Analyzer.c
                // Analyze();
 
@@ -152,6 +155,7 @@ void reed()
     {
         //Remove current Water quality result/sample
         //Disable interrupts for buttons
+        ValidSample = 0;  //Sample is no longer valid
         GPIO_disableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Disable interrupt for sanitization button
         GPIO_disableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);    //Disable interrupt for analysis button
 

@@ -22,14 +22,13 @@
 
 void uart_write_uint8(uint8_t n, uint8_t* j);
 
-
-void Export(uint8_t BattPerc, bool WatQual){
+//ValidSample =1, if analyzer was called, else 0 (if cap is removed after analyzer is called, sample is no longer valid)
+void Export(uint8_t BattPerc, bool WatQual, bool ValidSample){
 
     unsigned char transmit1[6] = "Bat: ";
     unsigned char transmit2[15] = "% | WQ: Good ";  //Had to make slightly larger, dont know why
     unsigned char transmit3[12]  = "% | WQ: Bad";
-//    unsigned char transmit3[5] = "Good";
-//    unsigned char transmit[4]  = "Bad";
+    unsigned char transmit4[2]    = "%";
     uint8_t i=0, j=0;
 
 
@@ -46,23 +45,37 @@ void Export(uint8_t BattPerc, bool WatQual){
 
     uart_write_uint8(BattPerc, &j);
 
-    if(WatQual)
+    if(!ValidSample)
     {
         //transmits the string "% | WQ: Good"
-        for(i=0;i<14;i++)
+        for(i=0;i<1;i++)
             {
-            EUSCI_A_UART_transmitData (EUSCI_A0_BASE, transmit2[i]);
+            EUSCI_A_UART_transmitData (EUSCI_A0_BASE, transmit4[i]);
             j++;
             }
     }
 
-    else if (!WatQual)
+
+    if(ValidSample)
     {
-        //transmits the string "% | WQ: Bad"
-        for(i=0;i<11;i++)
+        if(WatQual)
         {
-            EUSCI_A_UART_transmitData (EUSCI_A0_BASE, transmit3[i]);
-            j++;
+            //transmits the string "% | WQ: Good"
+            for(i=0;i<14;i++)
+                {
+                EUSCI_A_UART_transmitData (EUSCI_A0_BASE, transmit2[i]);
+                j++;
+                }
+        }
+
+        else if (!WatQual)
+        {
+            //transmits the string "% | WQ: Bad"
+            for(i=0;i<11;i++)
+            {
+                EUSCI_A_UART_transmitData (EUSCI_A0_BASE, transmit3[i]);
+                j++;
+            }
         }
     }
 

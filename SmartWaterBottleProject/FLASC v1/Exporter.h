@@ -8,6 +8,6 @@
 #ifndef EXPORTER_H_
 #define EXPORTER_H_
 
-void Export(uint8_t BattPerc, bool WatQual);
+void Export(uint8_t BattPerc, bool WatQual, bool ValidSample);
 
 #endif /* EXPORTER_H_ */

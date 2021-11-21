@@ -8,7 +8,8 @@
 #ifndef ANALYZER_H_
 #define ANALYZER_H_
 #include <stdint.h>
+#include <stdbool.h>
 
-uint16_t * Analyze(void);
+bool Analyze(void);
 
 #endif /* ANALYZER_H_ */

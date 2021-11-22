@@ -101,8 +101,21 @@ int main (void)
             {
                 ProcessRunningNot = 0;
                 AnalyzerResult = Analyze(); //Call the analyzer function, and return the analyzer result
+
+                if(AnalyzerResult)  //If sample passes analyzer (good)
+                {
+                    BlinkLight(GreenLEDNOTPort, GreenLEDNOTPin);
+                    BlinkLight(GreenLEDNOTPort, GreenLEDNOTPin);
+                }
+                else  //Bad sample
+                {
+                    BlinkLight(RedLEDNOTPort, RedLEDNOTPin);
+                    BlinkLight(RedLEDNOTPort, RedLEDNOTPin);
+                }
                 ProcessRunningNot = 1;  //Process is no longer running
                 ValidSample=1; //There is now a valid sample
+                GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Re-enable sanitize button interrupt
+                GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //Re-enable sanitize button interrupt
                 //Call Analyzer.c
                // Analyze();
 
@@ -425,13 +438,13 @@ __interrupt void T0A0_ISR() {
     // Hardware clears the flag, CCIFG in TA0CCTL0
 }
 
-//Blink LED at port and pin
+//Blink LED at port and pin, 5x (5 on, and 5 off), ending in off state
 void BlinkLight(int Port, int Pin)  //Port and pin
 {
     uint8_t i=0;
     uint16_t j=0;
-    GPIO_setOutputHighOnPin(Port, Pin);  //Turn Red LED OFF to start
-    for(i; i<10; i++)
+
+    for(i; i<11; i++)
     {
         for(j=0; j<20000; j++){} //Wait here
         GPIO_toggleOutputOnPin(Port, Pin);

@@ -22,13 +22,10 @@
 int LDPower; 	 //Global laser power level
 
 int Step(int);  //Steps the stepper motor over the input number of times
-int Step(int);  //Steps the stepper motor over the input number of times
 void Laser(int); //Sets the power level
 void Wait(int); //Waits a certain number of milliseconds.
-
-
-
 uint16_t GetVoltage(void);  //Function to take ADC measurement
+void Dir(int); //Sets direction of stepper motor
 
 bool Analyze()
 {
@@ -247,11 +244,20 @@ void Laser(int LDPowerLevelTo){ //This system assumes a valid operation.  The lo
     LDPower = LDPowerLevelTo;
 }
 void Wait(int time){ //Waits a specified number of milliseconds
-    //Cycles do not seem to be exact.  This results in about a 1 millisecond second delay per unit of time.
-    int i;
-    for(i=0;i<time;i++){
-        __delay_cycles(1000);
+    int t;
+    TA0CCR0 = 10000-1;
+    TA0CTL = TASSEL_2 | ID_0 | MC_1 | TACLR;
+    TA0CTL &= ~TAIFG;  //Clear flag at start
+    for(t=0; t<time; t++)
+    {
+        while((TA0CTL & TAIFG) == 0){}
+        TA0CTL &=~TAIFG;
     }
+    TA0CTL = MC_0;  //Turn timer off
+}
+void Dir(int polarity){ //Sets the direction of the stepper motor.
+    if(polarity>0) GPIO_setOutputLowOnPin(StepperDirectionPort, StepperDirectionPin);  //Set as Negative direction
+    else GPIO_setOutputHighOnPin(StepperDirectionPort, StepperDirectionPin);  //Set as positive direction
 }
 //Once finished call exporter to send data via bluetooth
 

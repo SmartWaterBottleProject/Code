@@ -266,7 +266,7 @@ __interrupt void P1_ISR()
    {
 
        //Check for button hold, wait 1/2 second
-           TA0CCR0 = 625; // at 1 MHz, set .5 second timer
+           TA0CCR0 = 1200; // at 1 MHz, set 1 second timer
            TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
            TA0CTL &= ~TAIFG;  //Clear flag at start
            while((TA0CTL & TAIFG) == 0){}
@@ -277,15 +277,16 @@ __interrupt void P1_ISR()
 //           GPIO_setAsInputPin(AnalyzeButtonPort, AnalyzeButtonPin);  //Remove pull up to check pin status?
 //           uint8_t ButtonResult = GPIO_getInputPinValue(AnalyzeButtonPort, AnalyzeButtonPin);
 
-           if(P1IN&BIT1)  //Only analyze button is pressed
+           if((P1IN&BIT1) == BIT1 )  //Button is no longer being pressed
            {
                StartAnalyze = 1; // set global analyze variable
            }
 
-           else if(GPIO_getInputPinValue(SanitizeButtonPort, SanitizeButtonPin)) //Both buttons are pressed
+           else if((P1IN&BIT1) != BIT1 ) //Button is still being pressed
            {
                Export(BatteryPercentage, AnalyzerResult, ValidSample);  //Call the exporter
                BlinkLight(BlueLEDNOTPort, BlueLEDNOTPin);  //Toggle Blue LED
+               GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //Re-enable analyzer button interrupt
            }
 
 //           GPIO_setAsInputPinWithPullUpResistor(AnalyzeButtonPort, AnalyzeButtonPin);
@@ -430,7 +431,7 @@ void BlinkLight(int Port, int Pin)  //Port and pin
     uint8_t i=0;
     uint16_t j=0;
     GPIO_setOutputHighOnPin(Port, Pin);  //Turn Red LED OFF to start
-    for(i; i<8; i++)
+    for(i; i<10; i++)
     {
         for(j=0; j<20000; j++){} //Wait here
         GPIO_toggleOutputOnPin(Port, Pin);

@@ -63,9 +63,9 @@ int main (void)
         }
 
         //For testing exporter
-        Export(BatteryPercentage, 1, ValidSample);  //No valid sample, transmit batt % only
-        Export(70,1,1);  //Valid: transmit % and good
-        Export(53, 0, 1);  //Valid: transmit % and bad
+//        Export(BatteryPercentage, 1, ValidSample);  //No valid sample, transmit batt % only
+//        Export(70,1,1);  //Valid: transmit % and good
+//        Export(53, 0, 1);  //Valid: transmit % and bad
 
         if(StartSanitize && ProcessRunningNot) //checks if sanitize button was pressed, and no other process is running
         {
@@ -100,7 +100,7 @@ int main (void)
             if(BatteryPercentage >= 20) //Ensure there is enough battery life, prior to starting sanitization
             {
                 ProcessRunningNot = 0;
-                AnalyzerResult = Analyze(); //Call the analyzer function, and return the analyzer result
+       //         AnalyzerResult = Analyze(); //Call the analyzer function, and return the analyzer result
 
                 if(AnalyzerResult)  //If sample passes analyzer (good)
                 {
@@ -114,6 +114,8 @@ int main (void)
                 }
                 ProcessRunningNot = 1;  //Process is no longer running
                 ValidSample=1; //There is now a valid sample
+                Export(BatteryPercentage, AnalyzerResult, ValidSample);  // Call exporter, post analysis
+                BlinkLight(BlueLEDNOTPort, BlueLEDNOTPin);  //Toggle Blue LED
                 GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Re-enable sanitize button interrupt
                 GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //Re-enable sanitize button interrupt
                 //Call Analyzer.c

@@ -84,12 +84,7 @@ void Export(uint8_t BattPerc, bool WatQual, bool ValidSample){
 
 
 
-//
-//    uart_write_uint8(WatQual, &j);
 
-
-//    EUSCI_A_UART_transmitData (EUSCI_A0_BASE, '% \n'); // percent sign for water quality reading
-//    j++;
 
     //this is trying to fill out the rest of the Cypress data characteristic with spaces
     //if nothing is added to punc

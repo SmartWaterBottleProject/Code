@@ -14,7 +14,28 @@
 //Treat voltage as adc integer or convert back to voltage
 //Could eventually take multiple channel measurements of photodiode voltage
 
+void Analyze(bool* safe)
+{
 
+    //Start sanitizer
+      if((*safe))
+      { // checks that reed switch is closed, cap is secure, dereferencing REED address
+          GPIO_setOutputLowOnPin(BlueLEDNOTPort, BlueLEDNOTPin);  //Turn on blue LED
+          TA0CTL &=~TAIFG;
+          // Timer_A: ACLK, div by 1, up mode, clear TAR (leaves TAIE=0)
+          TA0CCR0 = 1250-1; // at 625 Hz, set 2 second timer and then check UVC Voltages (10s * 625 Hz =6250)
+          TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
+          TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+          TA0CCTL0 |= CCIE; // Enable Channel 0 CCIE bit
+
+          // Enable the global interrupt bit,
+          //_enable_interrupts();
+          GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Turn on laser diode
+
+
+          return;  //Go back to main code, stay in LPM until sanitizer is done, cancelled, or cap is removed
+      }
+}
 
 
 

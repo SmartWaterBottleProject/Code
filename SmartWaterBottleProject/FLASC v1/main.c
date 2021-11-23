@@ -17,10 +17,19 @@
 
 
 //Could use bool to save program space
-bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0, ValidSample=0, AnalyzerResult=0; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0, ValidSample=0, AnalyzerResult=0, CheckAnalyzer=0, SuccessfulSanitizer=0; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 bool SecondUVCTimer = 0;  //When variable = 1, timer is on second iteration of sanitization. Done to account for 16-bit TA0CCR0 Overflow issues
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
 uint8_t BatteryPercentage =0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
+
+//Sanitizer uses 3 different times for 180s (3 min) duration
+    //Sanitize10s--first ten seconds of sanitization before UVC check
+    //SanitizeTime1--Approximately 104s
+    //SanitizeTime2--Approximately 65s
+//uint16_t Sanitize10s = 6250;  //Should be 6250 for 10s
+uint16_t SanitizeTime1 = 52500;  //Should be 52500 for 104s
+uint16_t SanitizeTime2 = 40625;  //Should be 40625 for 65s
+
 
 void reed();  //Function for polling reed switch when cap is removed
 void BlinkLight(int,int);  //Toggles various led, port and pin
@@ -100,37 +109,17 @@ int main (void)
             if(BatteryPercentage >= 20) //Ensure there is enough battery life, prior to starting sanitization
             {
                 ProcessRunningNot = 0;
-       //         AnalyzerResult = Analyze(); //Call the analyzer function, and return the analyzer result
-
-                if(AnalyzerResult)  //If sample passes analyzer (good)
-                {
-                    BlinkLight(GreenLEDNOTPort, GreenLEDNOTPin);
-                    BlinkLight(GreenLEDNOTPort, GreenLEDNOTPin);
-                }
-                else  //Bad sample
-                {
-                    BlinkLight(RedLEDNOTPort, RedLEDNOTPin);
-                    BlinkLight(RedLEDNOTPort, RedLEDNOTPin);
-                }
-                ProcessRunningNot = 1;  //Process is no longer running
-
-                Export(BatteryPercentage, AnalyzerResult, ValidSample);  // Call exporter, post analysis
-                BlinkLight(BlueLEDNOTPort, BlueLEDNOTPin);  //Toggle Blue LED
-                GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Re-enable sanitize button interrupt
-                GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //Re-enable sanitize button interrupt
-                //Call Analyzer.c
-               // Analyze();
-
+                Analyze(&ReedOpen);  //Call the analyzer
+                CheckAnalyzer=1;
             }
 
             else
-                        {
-                            //Should eventually Blink red LED for low battery
-                BlinkLight(RedLEDNOTPort, RedLEDNOTPin);
-                        }
+            {
+                //Should eventually Blink red LED for low battery
+                BlinkLight(RedLEDNOTPort, RedLEDNOTPin);  //Toggle RED led
+            }
 
-
-            StartAnalyze = 0; //reset variable for calling analyzer
+        StartAnalyze=0;  //Reset variable
         }
 
         //enable LPM again just in case
@@ -140,6 +129,14 @@ int main (void)
 
     return 0;
 }
+
+
+
+
+
+
+
+
 
 //For launchpad: Use breadboard short/open between P2.7 and nearby ground pin to simulate reed switch behavior
 
@@ -162,6 +159,10 @@ void reed()
 //        GPIO_setAsInputPinWithPullUpResistor(ReedSwitchPort, ReedSwitchPin);//Reconfigure reed switch pin as pulled high input
         ProcessRunningNot = 1;  //Process no longer running
         ReedOpen = 1 ; //Cap is back on, reed switch is open
+        GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //clear analyze button interrupt
+        GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitization button interrupt
+        GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Enable interrupt for sanitization button
+        GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);    //Enable interrupt for analysis button
         return;
     }
 
@@ -299,8 +300,19 @@ __interrupt void P1_ISR()
 
            else if((P1IN&BIT1) != BIT1 ) //Button is still being pressed
            {
+
+               if(BatteryPercentage >= 20)
+               {
                Export(BatteryPercentage, AnalyzerResult, ValidSample);  //Call the exporter
                BlinkLight(BlueLEDNOTPort, BlueLEDNOTPin);  //Toggle Blue LED
+               }
+
+               else
+               {
+                   BlinkLight(RedLEDNOTPort, RedLEDNOTPin);  //Blink red for error
+               }
+
+               GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
                GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //Re-enable analyzer button interrupt
            }
 
@@ -356,19 +368,62 @@ __interrupt void T0A0_ISR() {
            }
     }
 
-    else if (!UVCCheck)  //Sanitizer is finished
+    else if(CheckAnalyzer)  //Analyzer is finished
+    {
+        TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
+        TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
+        TA0CTL = MC_0;  //Turn timer off
+        GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Turn off laser diode
+
+        Initialize_ADC_Photodiode();  //Initialize the ADC
+        ADC12CTL0 |= ADC12SC; //set, start conversion for adc
+        //wait for flag to clear
+        while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field
+        uint16_t PhotodiodeVoltage = ADC12MEM0;
+        ADC12CTL0 &= ~ADC12ON;  //Turn ADC off? Maybe leaving it on causes, current draw.
+        GPIO_setOutputHighOnPin(BlueLEDNOTPort, BlueLEDNOTPin);  //Turn blue LED off
+
+        if(PhotodiodeVoltage > 2730)  //If sample passes analyzer (good)
+        {
+            BlinkLight(GreenLEDNOTPort, GreenLEDNOTPin);
+            BlinkLight(GreenLEDNOTPort, GreenLEDNOTPin);
+            AnalyzerResult=1;  //Good Result
+        }
+        else  //Bad sample
+        {
+            BlinkLight(RedLEDNOTPort, RedLEDNOTPin);
+            BlinkLight(RedLEDNOTPort, RedLEDNOTPin);
+            AnalyzerResult=0;  //Bad result
+        }
+        ProcessRunningNot = 1;  //Process is no longer running
+
+        if(SuccessfulSanitizer)  //If sanitizer was also previously run, now you have a valid sample.
+        {
+        ValidSample = 1;;  //Validsample
+        }
+
+        Export(BatteryPercentage, AnalyzerResult, ValidSample);  // Call exporter, post analysis
+        BlinkLight(BlueLEDNOTPort, BlueLEDNOTPin);  //Toggle Blue LED
+        GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
+        GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
+        GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Re-enable sanitize button interrupt
+        GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //Re-enable sanitize button interrupt
+        CheckAnalyzer=0;  //Reset Analyzer variable
+    }
+
+    else if (!UVCCheck)  //After UVC Check is finished (post-3 minutes) 2 different times
     {
 
-        if(SecondUVCTimer)
+        if(SecondUVCTimer)  //First time, trigger second post-UVC check sanitizer timer
         {
             TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
-            TA0CCR0 = 40625-1; // at 625 Hz, set 65 second timer (170s * 625 Hz =106250)
+            TA0CCR0 = SanitizeTime2 - 1; // at 625 Hz, set 65 second timer (170s * 625 Hz =106250)
             TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
             SecondUVCTimer = 0;  //Second UVC Timer is done
 
         }
 
-        else
+        else  //2nd time, after UVC check, sanitizer is now finished
         {
             //    sanitize = 0; //end sanitize function
                         GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
@@ -380,11 +435,13 @@ __interrupt void T0A0_ISR() {
                         TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
                         TA0CTL = MC_0;  //Turn timer off
                         ProcessRunningNot = 1; //Process is no longer running
-                        ValidSample=1; //There is now a valid sample
-                        GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
-                        GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
-                        GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
-                        GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
+                        StartAnalyze=1; //After sanitization, call the analyzer
+                        SuccessfulSanitizer =1;  //Sanitization was performed successfully
+                        LPM4_EXIT;
+//                        GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
+//                        GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
+//                        GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt
+//                        GPIO_enableInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);  //enable analyze button interrupt
 
         }
 
@@ -429,11 +486,14 @@ __interrupt void T0A0_ISR() {
             //If no error continue remaing 2:50s of sanitization
             TA0CCTL0 |= CCIE; // Enable Channel 0 CCIE bit
             TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
-            TA0CCR0 = 52500-1; // at 625 Hz, set 104 second timer (104s * 625 Hz =65536) Changed to 52500 to account for extra 20 second timing
+            TA0CCR0 = SanitizeTime1 - 1; // at 625 Hz, set 104 second timer (104s * 625 Hz =65536) Changed to 52500 to account for extra 20 second timing
             TA0CTL = TASSEL_1 | ID_0 | MC_1 | TACLR;
             SecondUVCTimer = 1;  //Start second iteration of UVC Timer
             UVCCheck = 0; //UVC Check is finished
-            GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);
+            GPIO_setOutputLowOnPin(GreenLEDNOTPort, GreenLEDNOTPin);  //Blink Green LED if photoresistor feedback check is passed
+            int i=0;
+            for(i; i<20000; i++){}
+            GPIO_setOutputHighOnPin(GreenLEDNOTPort, GreenLEDNOTPin);
         }
     }
 

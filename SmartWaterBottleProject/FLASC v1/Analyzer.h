@@ -10,6 +10,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-bool Analyze(void);
+ void Analyze(bool*);
 
 #endif /* ANALYZER_H_ */

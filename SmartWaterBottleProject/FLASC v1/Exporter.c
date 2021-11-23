@@ -47,7 +47,7 @@ void Export(uint8_t BattPerc, bool WatQual, bool ValidSample){
 
     if(!ValidSample)
     {
-        //transmits the string "% | WQ: Good"
+        //transmits the string "%"
         for(i=0;i<1;i++)
             {
             EUSCI_A_UART_transmitData (EUSCI_A0_BASE, transmit4[i]);

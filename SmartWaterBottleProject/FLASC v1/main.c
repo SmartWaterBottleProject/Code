@@ -113,7 +113,7 @@ int main (void)
                     BlinkLight(RedLEDNOTPort, RedLEDNOTPin);
                 }
                 ProcessRunningNot = 1;  //Process is no longer running
-                ValidSample=1; //There is now a valid sample
+
                 Export(BatteryPercentage, AnalyzerResult, ValidSample);  // Call exporter, post analysis
                 BlinkLight(BlueLEDNOTPort, BlueLEDNOTPin);  //Toggle Blue LED
                 GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //Re-enable sanitize button interrupt
@@ -356,7 +356,7 @@ __interrupt void T0A0_ISR() {
            }
     }
 
-    else if (!UVCCheck)
+    else if (!UVCCheck)  //Sanitizer is finished
     {
 
         if(SecondUVCTimer)
@@ -380,6 +380,7 @@ __interrupt void T0A0_ISR() {
                         TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
                         TA0CTL = MC_0;  //Turn timer off
                         ProcessRunningNot = 1; //Process is no longer running
+                        ValidSample=1; //There is now a valid sample
                         GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
                         GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
                         GPIO_enableInterrupt(SanitizeButtonPort, SanitizeButtonPin); //enable sanitize button interrupt

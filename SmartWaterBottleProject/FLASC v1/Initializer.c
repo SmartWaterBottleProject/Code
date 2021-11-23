@@ -76,19 +76,19 @@ void initialize(void) {
 
 
 //--------------Water Quality Analysis------------------------------------------------------------------------------------------------------//
-       GPIO_setAsOutputPin(StepperDirectionPort, StepperDirectionPin);  //Configure stepper direction as output
-       GPIO_setOutputHighOnPin(StepperDirectionPort, StepperDirectionPin);  //Assert + or high by default
-       GPIO_setAsOutputPin(MotorEnablePort, MotorEnablePin);            //Configure Motor Enable as output
-       GPIO_setOutputLowOnPin(MotorEnablePort, MotorEnablePin);         //ENABLE motor by default
-       GPIO_setAsOutputPin(StepperSleepNotPort, StepperSleepNotPin);          //Configure stepper sleep as output
-       GPIO_setOutputLowOnPin(StepperSleepNotPort, StepperSleepNotPin);       //For enable configuration--set as low and disable stepper (stepper motor is asleep, approx. 1uA current)
+//       GPIO_setAsOutputPin(StepperDirectionPort, StepperDirectionPin);  //Configure stepper direction as output
+//       GPIO_setOutputHighOnPin(StepperDirectionPort, StepperDirectionPin);  //Assert + or high by default
+//       GPIO_setAsOutputPin(MotorEnablePort, MotorEnablePin);            //Configure Motor Enable as output
+//       GPIO_setOutputLowOnPin(MotorEnablePort, MotorEnablePin);         //ENABLE motor by default
+//       GPIO_setAsOutputPin(StepperSleepNotPort, StepperSleepNotPin);          //Configure stepper sleep as output
+//       GPIO_setOutputLowOnPin(StepperSleepNotPort, StepperSleepNotPin);       //For enable configuration--set as low and disable stepper (stepper motor is asleep, approx. 1uA current)
        GPIO_setAsOutputPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Configure LD Low Power mode enable pin as output
        GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);   //Configure as low by default, since active high
        //Also enable high power branch, to access additional power for Laser Diode
-       GPIO_setAsOutputPin(LDHighPowerEnablePort, LDHighPowerEnablePin);    //Configure LD High Power mode enable pin as output
-       GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin); //Configure as low by default, since active high
-       GPIO_setAsOutputPin(MotorStepPort, MotorStepPin);  //Configure Motorstep as output
-       GPIO_setOutputLowOnPin(MotorStepPort, MotorStepPin);  //Set low by default
+//       GPIO_setAsOutputPin(LDHighPowerEnablePort, LDHighPowerEnablePin);    //Configure LD High Power mode enable pin as output
+//       GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin); //Configure as low by default, since active high
+//       GPIO_setAsOutputPin(MotorStepPort, MotorStepPin);  //Configure Motorstep as output
+//       GPIO_setOutputLowOnPin(MotorStepPort, MotorStepPin);  //Set low by default
 
 
 
@@ -113,6 +113,9 @@ void initialize(void) {
        GPIO_setOutputLowOnPin(BatteryReadEnablePort, BatteryReadEnablePin);     //Disable Battery read EN by default
 
 //--------------Bluetooth Module / UART------------------------------------------------------------------------------------------------------//
+
+       GPIO_setAsOutputPin(BluetoothCYSPPPort, BluetoothCSYPPPin);  //Set as output
+       GPIO_setOutputLowOnPin(BluetoothCYSPPPort, BluetoothCSYPPPin);  //Set as low
 
               // Divert pins to UART functionality
                   P2SEL1 &= ~(BIT0|BIT1);
@@ -150,6 +153,12 @@ void initialize(void) {
 
          P1SEL1 |= BIT3;
          P1SEL0 |= BIT3;
+
+
+
+
+
+         //*******************unused***************************//
 
 
 int i=0;

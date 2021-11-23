@@ -158,8 +158,82 @@ void initialize(void) {
 
 
 
-         //*******************unused***************************//
+//***************************unused***********************************//
 
+         GPIO_setAsInputPin(GPIO_PORT_P4, GPIO_PIN3);        //P4.3
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P4, GPIO_PIN3);
+
+         GPIO_setAsInputPin(GPIO_PORT_P1, GPIO_PIN6);       //P1.6
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN6);
+
+         GPIO_setAsInputPin(GPIO_PORT_P1, GPIO_PIN7);       //P1.7
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN7);
+
+         GPIO_setAsInputPin(GPIO_PORT_P2, GPIO_PIN5);       //P2.5
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P2, GPIO_PIN5);
+
+         GPIO_setAsInputPin(GPIO_PORT_P2, GPIO_PIN6);       //P2.6
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P2, GPIO_PIN6);
+
+         GPIO_setAsInputPin(GPIO_PORT_P5, GPIO_PIN0);       //P5.0
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P5, GPIO_PIN0);
+
+         GPIO_setAsInputPin(GPIO_PORT_P5, GPIO_PIN1);       //P5.1
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P5, GPIO_PIN1);
+
+         GPIO_setAsInputPin(GPIO_PORT_P5, GPIO_PIN2);       //P5.2
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P5, GPIO_PIN2);
+
+         GPIO_setAsInputPin(GPIO_PORT_PJ, GPIO_PIN0);        //PJ.0
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_PJ, GPIO_PIN0);
+
+         GPIO_setAsInputPin(GPIO_PORT_PJ, GPIO_PIN1);        //PJ.1
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_PJ, GPIO_PIN1);
+
+         GPIO_setAsInputPin(GPIO_PORT_PJ, GPIO_PIN2);        //PJ.2
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_PJ, GPIO_PIN2);
+
+         GPIO_setAsInputPin(GPIO_PORT_PJ, GPIO_PIN3);        //PJ.3
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_PJ, GPIO_PIN3);
+
+         GPIO_setAsInputPin(GPIO_PORT_PJ, GPIO_PIN4);        //PJ.4
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_PJ, GPIO_PIN4);
+
+         GPIO_setAsInputPin(GPIO_PORT_PJ, GPIO_PIN5);        //PJ.5
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_PJ, GPIO_PIN5);
+
+         GPIO_setAsInputPin(GPIO_PORT_PJ, GPIO_PIN6);        //PJ.6
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_PJ, GPIO_PIN6);
+
+         GPIO_setAsInputPin(GPIO_PORT_PJ, GPIO_PIN7);        //PJ.7
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_PJ, GPIO_PIN7);
+
+         GPIO_setAsInputPin(GPIO_PORT_P3, GPIO_PIN3);        //P3.3
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3, GPIO_PIN3);
+
+         GPIO_setAsInputPin(GPIO_PORT_P3, GPIO_PIN4);        //P3.4
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3, GPIO_PIN4);
+
+         GPIO_setAsInputPin(GPIO_PORT_P3, GPIO_PIN5);        //P3.5
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3, GPIO_PIN5);
+
+         GPIO_setAsInputPin(GPIO_PORT_P3, GPIO_PIN6);        //P3.6
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3, GPIO_PIN6);
+
+         GPIO_setAsInputPin(GPIO_PORT_P3, GPIO_PIN7);        //P3.7
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3, GPIO_PIN7);
+
+         GPIO_setAsInputPin(GPIO_PORT_P2, GPIO_PIN3);       //P2.3
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P2, GPIO_PIN3);
+
+         GPIO_setAsInputPin(GPIO_PORT_P2, GPIO_PIN2);       //P2.2
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P2, GPIO_PIN2);
+
+         GPIO_setAsInputPin(GPIO_PORT_P1, GPIO_PIN0);       //P1.0
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN0);
+
+         GPIO_setAsInputPin(GPIO_PORT_P4, GPIO_PIN2);       //P4.2
+         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P4, GPIO_PIN2);
 
 int i=0;
 for(i; i<10000; i++){}

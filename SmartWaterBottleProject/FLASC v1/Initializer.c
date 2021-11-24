@@ -170,7 +170,7 @@ void initialize(void) {
          GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P1, GPIO_PIN7);
 
          GPIO_setAsInputPin(GPIO_PORT_P2, GPIO_PIN5);       //P2.5
-         GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P2, GPIO_PIN5);
+         GPIO_setAsInputPinWithPullDownResistor(GPIO_PORT_P2, GPIO_PIN5);
 
          GPIO_setAsInputPin(GPIO_PORT_P2, GPIO_PIN6);       //P2.6
          GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P2, GPIO_PIN6);

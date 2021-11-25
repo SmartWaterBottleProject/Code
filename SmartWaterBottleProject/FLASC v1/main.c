@@ -27,8 +27,8 @@ uint8_t BatteryPercentage =0;  //uint8_t to save program space, stores battery p
     //SanitizeTime1--Approximately 104s
     //SanitizeTime2--Approximately 65s
 //uint16_t Sanitize10s = 6250;  //Should be 6250 for 10s
-uint16_t SanitizeTime1 = 52500;  //Should be 52500 for 104s
-uint16_t SanitizeTime2 = 40625;  //Should be 40625 for 65s
+uint16_t SanitizeTime1 = 500;  //Should be 52500 for 104s
+uint16_t SanitizeTime2 = 625;  //Should be 40625 for 65s
 
 
 void reed();  //Function for polling reed switch when cap is removed
@@ -373,7 +373,7 @@ __interrupt void T0A0_ISR() {
         TA0CCTL0 &= ~CCIE; // Disable Channel 0 CCIE bit
         TA0CCTL0 &= ~CCIFG; // Clear Channel 0 CCIFG bit
         TA0CTL = MC_0;  //Turn timer off
-        GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Turn off laser diode
+
 
         Initialize_ADC_Photodiode();  //Initialize the ADC
         ADC12CTL0 |= ADC12SC; //set, start conversion for adc
@@ -381,9 +381,11 @@ __interrupt void T0A0_ISR() {
         while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field
         uint16_t PhotodiodeVoltage = ADC12MEM0;
         ADC12CTL0 &= ~ADC12ON;  //Turn ADC off? Maybe leaving it on causes, current draw.
+        GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Turn off laser diode
+        GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
         GPIO_setOutputHighOnPin(BlueLEDNOTPort, BlueLEDNOTPin);  //Turn blue LED off
 
-        if(PhotodiodeVoltage > 2730)  //If sample passes analyzer (good)
+        if(PhotodiodeVoltage > 400)  //If sample passes analyzer (good)
         {
             BlinkLight(GreenLEDNOTPort, GreenLEDNOTPin);
             BlinkLight(GreenLEDNOTPort, GreenLEDNOTPin);
@@ -461,7 +463,7 @@ __interrupt void T0A0_ISR() {
         GPIO_setOutputLowOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin);  //Disable photoresistor
 
         //If UVC check fails
-        if( PhotoresistorVoltage <= 2730)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
+        if( PhotoresistorVoltage <= 30)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
         {
             GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);  //Disable UVCs
             GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn off yellow indicator LED

@@ -31,6 +31,7 @@ void Analyze(bool* safe)
           // Enable the global interrupt bit,
           //_enable_interrupts();
           GPIO_setOutputHighOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Turn on laser diode
+          GPIO_setOutputHighOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
 
 
           return;  //Go back to main code, stay in LPM until sanitizer is done, cancelled, or cap is removed

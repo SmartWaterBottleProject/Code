@@ -27,8 +27,8 @@ uint8_t BatteryPercentage =0;  //uint8_t to save program space, stores battery p
     //SanitizeTime1--Approximately 104s
     //SanitizeTime2--Approximately 65s
 //uint16_t Sanitize10s = 6250;  //Should be 6250 for 10s
-uint16_t SanitizeTime1 = 500;  //Should be 52500 for 104s
-uint16_t SanitizeTime2 = 625;  //Should be 40625 for 65s
+uint16_t SanitizeTime1 = 52500;  //Should be 52500 for 104s
+uint16_t SanitizeTime2 = 40625;  //Should be 40625 for 65s
 
 
 void reed();  //Function for polling reed switch when cap is removed

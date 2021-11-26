@@ -23,13 +23,22 @@
 void uart_write_uint8(uint8_t n, uint8_t* j);
 
 //ValidSample =1, if analyzer was called, else 0 (if cap is removed after analyzer is called, sample is no longer valid)
-void Export(uint8_t BattPerc, bool WatQual, bool ValidSample){
+void Export(uint16_t BattRead, bool WatQual, bool ValidSample){
 
     unsigned char transmit1[6] = "Bat: ";
     unsigned char transmit2[15] = "% | WQ: Good ";  //Had to make slightly larger, dont know why
     unsigned char transmit3[12]  = "% | WQ: Bad";
     unsigned char transmit4[2]    = "%";
     uint8_t i=0, j=0;
+
+    //Convert ADC reading to a %
+    uint32_t TempBattPerc = 0;
+    TempBattPerc = (BattRead-3314);
+    TempBattPerc = TempBattPerc*100;
+    TempBattPerc = TempBattPerc/781;
+
+    uint8_t BattPerc = (uint8_t)TempBattPerc;
+//    BattPerc= (100*(BattRead-3314))/(4095-3314);
 
 
     EUSCI_A_UART_enable(EUSCI_A0_BASE);

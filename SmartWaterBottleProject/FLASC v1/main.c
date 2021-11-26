@@ -20,7 +20,7 @@
 bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0, ValidSample=0, AnalyzerResult=0, CheckAnalyzer=0, SuccessfulSanitizer=0; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 bool SecondUVCTimer = 0;  //When variable = 1, timer is on second iteration of sanitization. Done to account for 16-bit TA0CCR0 Overflow issues
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
-uint8_t BatteryPercentage =0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
+uint16_t BatteryPercentage = 0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
 
 //Sanitizer uses 3 different times for 180s (3 min) duration
     //Sanitize10s--first ten seconds of sanitization before UVC check
@@ -42,6 +42,7 @@ int main (void)
 
     //Call Batteryread
     BatteryPercentage = Batteryread();
+
 
     _enable_interrupts();
 
@@ -81,7 +82,7 @@ int main (void)
             //Call Batteryread
             BatteryPercentage = Batteryread();
 
-            if(BatteryPercentage>= 20)  //Ensure there is enough battery life, prior to starting sanitization
+            if(BatteryPercentage>= 3470)  //Ensure there is enough battery life, prior to starting sanitization
             {
             //Call Sanitizer.c to start sanitization
             ProcessRunningNot =0;  //Blocking term for process
@@ -106,7 +107,7 @@ int main (void)
             //Call Batteryread
            BatteryPercentage = Batteryread();
 
-            if(BatteryPercentage >= 20) //Ensure there is enough battery life, prior to starting sanitization
+            if(BatteryPercentage >= 3470) //Ensure there is enough battery life, prior to starting sanitization
             {
                 ProcessRunningNot = 0;
                 Analyze(&ReedOpen);  //Call the analyzer
@@ -228,6 +229,8 @@ __interrupt void P2_ISR()
     {
         //Stop Everything
         GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);        //Timer disables UVC LEDs
+        GPIO_setOutputLowOnPin(LDLowPowerEnablePort, LDLowPowerEnablePin);  //Disable Laser diode
+        GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
         GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin); //Timer turns off yellow indicator LED
         ReedOpen = 0;
         ProcessRunningNot =0;  //Process is running (reed switch removed)
@@ -301,7 +304,7 @@ __interrupt void P1_ISR()
            else if((P1IN&BIT1) != BIT1 ) //Button is still being pressed
            {
 
-               if(BatteryPercentage >= 20)
+               if(BatteryPercentage >= 3470)
                {
                Export(BatteryPercentage, AnalyzerResult, ValidSample);  //Call the exporter
                BlinkLight(BlueLEDNOTPort, BlueLEDNOTPin);  //Toggle Blue LED
@@ -385,7 +388,7 @@ __interrupt void T0A0_ISR() {
         GPIO_setOutputLowOnPin(LDHighPowerEnablePort, LDHighPowerEnablePin);
         GPIO_setOutputHighOnPin(BlueLEDNOTPort, BlueLEDNOTPin);  //Turn blue LED off
 
-        if(PhotodiodeVoltage > 400)  //If sample passes analyzer (good)
+        if(PhotodiodeVoltage > 300)  //If sample passes analyzer (good)
         {
             BlinkLight(GreenLEDNOTPort, GreenLEDNOTPin);
             BlinkLight(GreenLEDNOTPort, GreenLEDNOTPin);
@@ -463,7 +466,7 @@ __interrupt void T0A0_ISR() {
         GPIO_setOutputLowOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin);  //Disable photoresistor
 
         //If UVC check fails
-        if( PhotoresistorVoltage <= 30)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
+        if( PhotoresistorVoltage <= 15)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
         {
             GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);  //Disable UVCs
             GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn off yellow indicator LED

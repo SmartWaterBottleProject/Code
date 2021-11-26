@@ -10,6 +10,6 @@
 
 #include <stdint.h>
 
-uint8_t Batteryread(void);
+uint16_t Batteryread(void);
 
 #endif /* BATTERYREADER_H_ */

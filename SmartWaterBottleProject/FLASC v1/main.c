@@ -27,8 +27,8 @@ uint16_t BatteryPercentage = 0;  //uint8_t to save program space, stores battery
     //SanitizeTime1--Approximately 104s
     //SanitizeTime2--Approximately 65s
 //uint16_t Sanitize10s = 6250;  //Should be 6250 for 10s
-uint16_t SanitizeTime1 = 52500;  //Should be 52500 for 104s
-uint16_t SanitizeTime2 = 40625;  //Should be 40625 for 65s
+uint16_t SanitizeTime1 = 45150;  //Should be 52500 for 104s
+uint16_t SanitizeTime2 = 34937;  //Should be 40625 for 65s
 
 
 void reed();  //Function for polling reed switch when cap is removed
@@ -378,7 +378,7 @@ __interrupt void T0A0_ISR() {
         TA0CTL = MC_0;  //Turn timer off
 
 
-        Initialize_ADC_Photodiode();  //Initialize the ADC
+         Initialize_ADC_Photodiode();  //Initialize the ADC
         ADC12CTL0 |= ADC12SC; //set, start conversion for adc
         //wait for flag to clear
         while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field
@@ -457,6 +457,7 @@ __interrupt void T0A0_ISR() {
         //UVCCheck
         GPIO_setOutputHighOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin); //Enable photo resistor
         Initialize_ADC_Photoresistor();  //Initialize the ADC
+//        Initialize_ADC_Photodiode();
         ADC12CTL0 |= ADC12SC; //set, start conversion for adc
         //wait for flag to clear
         while( (ADC12CTL1 & ADC12BUSY) != 0 ){} //wait here, use !=0, since there could be other bits in bit field
@@ -466,7 +467,7 @@ __interrupt void T0A0_ISR() {
         GPIO_setOutputLowOnPin(PhotoresistorEnablePort, PhotoresistorEnablePin);  //Disable photoresistor
 
         //If UVC check fails
-        if( PhotoresistorVoltage <= 15)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
+        if( PhotoresistorVoltage < 5)  //If Less than 1V, if +VCC=3.3V    (4096*1/3.3 -->1240)
         {
             GPIO_setOutputLowOnPin(UVCEnablePort, UVCEnablePin);  //Disable UVCs
             GPIO_setOutputHighOnPin(YellowLEDNOTPort, YellowLEDNOTPin);  //Turn off yellow indicator LED

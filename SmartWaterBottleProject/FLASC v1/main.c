@@ -20,7 +20,7 @@
 bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0, ValidSample=0, AnalyzerResult=0, CheckAnalyzer=0, SuccessfulSanitizer=0; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 bool SecondUVCTimer = 0;  //When variable = 1, timer is on second iteration of sanitization. Done to account for 16-bit TA0CCR0 Overflow issues
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
-uint16_t BatteryPercentage = 0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
+uint8_t BatteryPercentage = 0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
 
 //Sanitizer uses 3 different times for 180s (3 min) duration
     //Sanitize10s--first ten seconds of sanitization before UVC check
@@ -82,7 +82,7 @@ int main (void)
             //Call Batteryread
             BatteryPercentage = Batteryread();
 
-            if(BatteryPercentage>= 3470)  //Ensure there is enough battery life, prior to starting sanitization
+            if(BatteryPercentage >= 20)  //Ensure there is enough battery life, prior to starting sanitization
             {
             //Call Sanitizer.c to start sanitization
             ProcessRunningNot =0;  //Blocking term for process
@@ -107,7 +107,7 @@ int main (void)
             //Call Batteryread
            BatteryPercentage = Batteryread();
 
-            if(BatteryPercentage >= 3470) //Ensure there is enough battery life, prior to starting sanitization
+            if(BatteryPercentage >= 20) //Ensure there is enough battery life, prior to starting sanitization
             {
                 ProcessRunningNot = 0;
                 Analyze(&ReedOpen);  //Call the analyzer
@@ -304,7 +304,7 @@ __interrupt void P1_ISR()
            else if((P1IN&BIT1) != BIT1 ) //Button is still being pressed
            {
 
-               if(BatteryPercentage >= 3470)
+               if(BatteryPercentage >= 20)
                {
                Export(BatteryPercentage, AnalyzerResult, ValidSample);  //Call the exporter
                BlinkLight(BlueLEDNOTPort, BlueLEDNOTPin);  //Toggle Blue LED

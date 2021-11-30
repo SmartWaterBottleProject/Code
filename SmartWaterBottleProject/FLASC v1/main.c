@@ -17,7 +17,7 @@
 
 
 //Could use bool to save program space
-bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0, ValidSample=0, AnalyzerResult=0, CheckAnalyzer=0, SuccessfulSanitizer=0; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
+bool StartSanitize = 0, StartAnalyze = 0, ReedOpen = 1, UVCCheck =0, ValidSample=0, AnalyzerResult=0, CheckAnalyzer=0; // Global variables to trigger sanitization, analyzing, and Reed safety shutoff
 bool SecondUVCTimer = 0;  //When variable = 1, timer is on second iteration of sanitization. Done to account for 16-bit TA0CCR0 Overflow issues
 bool ProcessRunningNot = 1;  //If process is currently running, do not run another one, 0-process is running, 1-process is NOT running
 uint8_t BatteryPercentage = 0;  //uint8_t to save program space, stores battery percentage (rounded to nearest integer)
@@ -27,8 +27,8 @@ uint8_t BatteryPercentage = 0;  //uint8_t to save program space, stores battery 
     //SanitizeTime1--Approximately 104s
     //SanitizeTime2--Approximately 65s
 //uint16_t Sanitize10s = 6250;  //Should be 6250 for 10s
-uint16_t SanitizeTime1 = 45150;  //Should be 52500 for 104s
-uint16_t SanitizeTime2 = 34937;  //Should be 40625 for 65s
+uint16_t SanitizeTime1 = 45150;  //Should be 45150 for 104s
+uint16_t SanitizeTime2 = 34937;  //Should be 34937 for 65s
 
 
 void reed();  //Function for polling reed switch when cap is removed
@@ -86,6 +86,7 @@ int main (void)
             {
             //Call Sanitizer.c to start sanitization
             ProcessRunningNot =0;  //Blocking term for process
+            ValidSample=0;  //Re-initialize valid sample before each sanitizer call
             Sanitize(&ReedOpen);  //Call sanitization function to start sanitizer
             UVCCheck = 1;  //Signify UVC Check during first 10 seconds
 //            StopSanitize =1;  //Next time this if statement executes, the sanitizer should stop--might not need this
@@ -402,10 +403,7 @@ __interrupt void T0A0_ISR() {
         }
         ProcessRunningNot = 1;  //Process is no longer running
 
-        if(SuccessfulSanitizer)  //If sanitizer was also previously run, now you have a valid sample.
-        {
-        ValidSample = 1;;  //Validsample
-        }
+
 
         Export(BatteryPercentage, AnalyzerResult, ValidSample);  // Call exporter, post analysis
         BlinkLight(BlueLEDNOTPort, BlueLEDNOTPin);  //Toggle Blue LED
@@ -441,7 +439,7 @@ __interrupt void T0A0_ISR() {
                         TA0CTL = MC_0;  //Turn timer off
                         ProcessRunningNot = 1; //Process is no longer running
                         StartAnalyze=1; //After sanitization, call the analyzer
-                        SuccessfulSanitizer =1;  //Sanitization was performed successfully
+                        ValidSample =1;  //Sanitization was performed successfully
                         LPM4_EXIT;
 //                        GPIO_clearInterrupt(SanitizeButtonPort, SanitizeButtonPin);  //clear sanitize button interrupt
 //                        GPIO_clearInterrupt(AnalyzeButtonPort, AnalyzeButtonPin);
